@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Mides Collection - Inventory Management Dashboard">
+    <title>Inventory Dashboard - Mides Collection</title>
+    <link rel="stylesheet" href="inventory-styles.css">
+</head>
+<body class="dashboard-page">
+    <!-- Top Navigation -->
+    <header class="dashboard-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <h1 class="logo-text">MC</h1>
+                <span class="logo-subtitle">Inventory System</span>
+            </div>
+            
+            <div class="header-actions">
+                <span class="user-info" id="user-info">Welcome, <strong>Admin</strong></span>
+                <button class="btn btn-logout" id="logout-btn">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard Layout -->
+    <div class="dashboard-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="dashboard-sidebar" role="navigation" aria-label="Dashboard navigation">
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-view="overview">
+                    <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"/>
+                        <rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/>
+                        <rect x="3" y="14" width="7" height="7"/>
+                    </svg>
+                    <span>Overview</span>
+                </button>
+
+                <button class="nav-item" data-view="inward">
+                    <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12l7 7 7-7"/>
+                    </svg>
+                    <span>Inward Stock</span>
+                </button>
+
+                <button class="nav-item" data-view="outward">
+                    <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 19V5M5 12l7-7 7 7"/>
+                    </svg>
+                    <span>Outward Stock</span>
+                </button>
+
+                <button class="nav-item" data-view="inventory">
+                    <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                    </svg>
+                    <span>Current Inventory</span>
+                </button>
+
+                <button class="nav-item" data-view="orders">
+                    <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="9" cy="21" r="1"/>
+                        <circle cx="20" cy="21" r="1"/>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                    </svg>
+                    <span>Order Stock</span>
+                </button>
+
+                <button class="nav-item" data-view="history">
+                    <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    <span>History</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="dashboard-main">
+            <!-- Overview View -->
+            <section class="view-section active" id="overview-view">
+                <h2 class="view-heading">Dashboard Overview</h2>
+                
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-primary">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <p class="stat-label">Total Items</p>
+                            <p class="stat-value" id="stat-total-items">0</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-success">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 5v14M5 12l7 7 7-7"/>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <p class="stat-label">Inward Today</p>
+                            <p class="stat-value" id="stat-inward">0</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-warning">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 19V5M5 12l7-7 7 7"/>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <p class="stat-label">Outward Today</p>
+                            <p class="stat-value" id="stat-outward">0</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-danger">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                                <line x1="12" y1="9" x2="12" y2="13"/>
+                                <line x1="12" y1="17" x2="12.01" y2="17"/>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <p class="stat-label">Low Stock Items</p>
+                            <p class="stat-value" id="stat-low-stock">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <h3 class="section-title">Quick Actions</h3>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" id="quick-add-stock">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            Add Inward Stock
+                        </button>
+                        <button class="btn btn-secondary" id="quick-remove-stock">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            Record Outward
+                        </button>
+                        <button class="btn btn-accent" id="quick-order-stock">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="9" cy="21" r="1"/>
+                                <circle cx="20" cy="21" r="1"/>
+                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                            </svg>
+                            Order Stock
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="recent-activity">
+                    <h3 class="section-title">Recent Activity</h3>
+                    <div class="activity-list" id="recent-activity-list">
+                        <!-- Activity items will be inserted here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Inward Stock View -->
+            <section class="view-section" id="inward-view">
+                <div class="view-header">
+                    <h2 class="view-heading">Inward Stock</h2>
+                    <button class="btn btn-primary" id="add-inward-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        Add Inward Stock
+                    </button>
+                </div>
+
+                <div class="data-table-container">
+                    <table class="data-table" id="inward-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Supplier</th>
+                                <th>Reference</th>
+                                <th>Added By</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inward-tbody">
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Outward Stock View -->
+            <section class="view-section" id="outward-view">
+                <div class="view-header">
+                    <h2 class="view-heading">Outward Stock</h2>
+                    <button class="btn btn-primary" id="add-outward-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        Record Outward
+                    </button>
+                </div>
+
+                <div class="data-table-container">
+                    <table class="data-table" id="outward-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Reason</th>
+                                <th>Reference</th>
+                                <th>Recorded By</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="outward-tbody">
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Current Inventory View -->
+            <section class="view-section" id="inventory-view">
+                <h2 class="view-heading">Current Inventory</h2>
+                
+                <div class="inventory-grid" id="inventory-grid">
+                    <!-- Inventory cards will be inserted here -->
+                </div>
+            </section>
+
+            <!-- Order Stock View -->
+            <section class="view-section" id="orders-view">
+                <div class="view-header">
+                    <h2 class="view-heading">Order Stock</h2>
+                    <button class="btn btn-primary" id="create-order-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        Create Order
+                    </button>
+                </div>
+
+                <div class="data-table-container">
+                    <table class="data-table" id="orders-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Supplier</th>
+                                <th>Status</th>
+                                <th>Created By</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-tbody">
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- History View -->
+            <section class="view-section" id="history-view">
+                <h2 class="view-heading">Transaction History</h2>
+                
+                <div class="filter-bar">
+                    <select id="filter-type" class="form-select">
+                        <option value="all">All Transactions</option>
+                        <option value="inward">Inward Only</option>
+                        <option value="outward">Outward Only</option>
+                        <option value="orders">Orders Only</option>
+                    </select>
+                    
+                    <input type="date" id="filter-date" class="form-input">
+                    
+                    <button class="btn btn-secondary" id="apply-filter">Apply Filter</button>
+                    <button class="btn btn-outline" id="export-data">Export to CSV</button>
+                </div>
+
+                <div class="data-table-container">
+                    <table class="data-table" id="history-table">
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Type</th>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>User</th>
+                                <th>Reference</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-tbody">
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for Adding Inward Stock -->
+    <div class="modal" id="inward-modal" role="dialog" aria-labelledby="inward-modal-title" aria-hidden="true">
+        <div class="modal-overlay" data-close-modal></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="inward-modal-title" class="modal-title">Add Inward Stock</h3>
+                <button class="modal-close" data-close-modal aria-label="Close modal">×</button>
+            </div>
+            <form class="modal-form" id="inward-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="inward-product" class="form-label">Product *</label>
+                        <select id="inward-product" class="form-select" required>
+                            <option value="">Select Product</option>
+                            <option value="ariel">Ariel</option>
+                            <option value="body-wave">Body Wave</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="lexy">Lexy</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="inward-quantity" class="form-label">Quantity *</label>
+                        <input type="number" id="inward-quantity" class="form-input" min="1" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="inward-supplier" class="form-label">Supplier *</label>
+                        <input type="text" id="inward-supplier" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="inward-reference" class="form-label">Reference Number</label>
+                        <input type="text" id="inward-reference" class="form-input">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="inward-notes" class="form-label">Notes</label>
+                    <textarea id="inward-notes" class="form-textarea" rows="3"></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" data-close-modal>Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Stock</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for Adding Outward Stock -->
+    <div class="modal" id="outward-modal" role="dialog" aria-labelledby="outward-modal-title" aria-hidden="true">
+        <div class="modal-overlay" data-close-modal></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="outward-modal-title" class="modal-title">Record Outward Stock</h3>
+                <button class="modal-close" data-close-modal aria-label="Close modal">×</button>
+            </div>
+            <form class="modal-form" id="outward-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="outward-product" class="form-label">Product *</label>
+                        <select id="outward-product" class="form-select" required>
+                            <option value="">Select Product</option>
+                            <option value="ariel">Ariel</option>
+                            <option value="body-wave">Body Wave</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="lexy">Lexy</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="outward-quantity" class="form-label">Quantity *</label>
+                        <input type="number" id="outward-quantity" class="form-input" min="1" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="outward-reason" class="form-label">Reason *</label>
+                        <select id="outward-reason" class="form-select" required>
+                            <option value="">Select Reason</option>
+                            <option value="sale">Sale</option>
+                            <option value="return">Return to Supplier</option>
+                            <option value="damage">Damaged/Defective</option>
+                            <option value="sample">Sample</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="outward-reference" class="form-label">Reference Number</label>
+                        <input type="text" id="outward-reference" class="form-input">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="outward-notes" class="form-label">Notes</label>
+                    <textarea id="outward-notes" class="form-textarea" rows="3"></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" data-close-modal>Cancel</button>
+                    <button type="submit" class="btn btn-primary">Record Outward</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for Creating Order -->
+    <div class="modal" id="order-modal" role="dialog" aria-labelledby="order-modal-title" aria-hidden="true">
+        <div class="modal-overlay" data-close-modal></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="order-modal-title" class="modal-title">Create Stock Order</h3>
+                <button class="modal-close" data-close-modal aria-label="Close modal">×</button>
+            </div>
+            <form class="modal-form" id="order-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="order-product" class="form-label">Product *</label>
+                        <select id="order-product" class="form-select" required>
+                            <option value="">Select Product</option>
+                            <option value="ariel">Ariel</option>
+                            <option value="body-wave">Body Wave</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="lexy">Lexy</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="order-quantity" class="form-label">Quantity *</label>
+                        <input type="number" id="order-quantity" class="form-input" min="1" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="order-supplier" class="form-label">Supplier *</label>
+                    <select id="order-supplier" class="form-select" required>
+                        <option value="">Select Supplier</option>
+                        <option value="supplier-a">Supplier A - Premium Hair</option>
+                        <option value="supplier-b">Supplier B - Hair World</option>
+                        <option value="supplier-c">Supplier C - Extensions Ltd</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="order-notes" class="form-label">Notes</label>
+                    <textarea id="order-notes" class="form-textarea" rows="3"></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" data-close-modal>Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Order</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div 
+        id="notification-container" 
+        class="notification-container" 
+        role="status" 
+        aria-live="polite"
+    ></div>
+
+    <script src="inventory-dashboard.js"></script>
+</body>
+</html>
+
+
