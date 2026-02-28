@@ -1,0 +1,1089 @@
+USE MidesInventory;
+GO
+-- ============================================
+-- PREREQUISITE: ALTER USERS TABLE
+-- Add PasswordSalt column for secure password storage
+-- ============================================
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'Users') AND name = 'PasswordSalt')
+BEGIN
+    ALTER TABLE Users ADD PasswordSalt NVARCHAR(255);
+END
+GO
+
+-- ============================================
+-- PREREQUISITE: ALTER USERSESSIONS TABLE
+-- Add ExpiryDate column for session timeout management
+-- ============================================
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'UserSessions') AND name = 'ExpiryDate')
+BEGIN
+    ALTER TABLE UserSessions ADD ExpiryDate DATETIME;
+END
+GO
+
+-- ============================================
+-- SUPPORTING TABLES: AUDIT AND ERROR LOGGING
+-- ============================================
+
+-- Create AuditLog table if not exists
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'AuditLog') AND type in (N'U'))
+BEGIN
+    CREATE TABLE AuditLog (
+        LogID INT IDENTITY(1,1) PRIMARY KEY,
+        UserID INT NULL,
+        Action NVARCHAR(100) NOT NULL,
+        IPAddress NVARCHAR(50),
+        Timestamp DATETIME DEFAULT GETDATE(),
+        Details NVARCHAR(MAX),
+        INDEX IX_UserID_Timestamp (UserID, Timestamp),
+        INDEX IX_Action_Timestamp (Action, Timestamp)
+    );
+END
+GO
+
+-- Create ErrorLog table if not exists
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'ErrorLog') AND type in (N'U'))
+BEGIN
+    CREATE TABLE ErrorLog (
+        ErrorID INT IDENTITY(1,1) PRIMARY KEY,
+        ErrorMessage NVARCHAR(MAX),
+        ErrorProcedure NVARCHAR(255),
+        ErrorLine INT,
+        Timestamp DATETIME DEFAULT GETDATE(),
+        INDEX IX_Timestamp (Timestamp)
+    );
+END
+GO
+
+-- Create FailedLoginAttempts table for security
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'FailedLoginAttempts') AND type in (N'U'))
+BEGIN
+    CREATE TABLE FailedLoginAttempts (
+        AttemptID INT IDENTITY(1,1) PRIMARY KEY,
+        Username NVARCHAR(50) NOT NULL,
+        IPAddress NVARCHAR(50),
+        AttemptDate DATETIME DEFAULT GETDATE(),
+        INDEX IX_Username_Date (Username, AttemptDate)
+    );
+END
+GO
+-- ============================================
+-- USER AUTHENTICATION
+-- ============================================
+
+-- Login procedure
+CREATE OR ALTER PROCEDURE sp_UserLogin
+    @Username NVARCHAR(50),
+    @PasswordHash NVARCHAR(255),
+    @IPAddress NVARCHAR(50) = NULL,
+    @UserAgent NVARCHAR(500) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    DECLARE @UserID INT;
+    DECLARE @IsActive BIT;
+    DECLARE @StoredPasswordHash NVARCHAR(255);
+    DECLARE @PasswordSalt NVARCHAR(255);
+    DECLARE @SessionToken NVARCHAR(255);
+    DECLARE @ComputedHash NVARCHAR(255);
+    DECLARE @FailedAttempts INT;
+    DECLARE @SessionExpiryDate DATETIME;
+
+   BEGIN TRY
+
+-- ============================================
+        -- STEP 1: CHECK FOR ACCOUNT LOCKOUT
+        -- Prevent brute force attacks by limiting failed attempts
+        -- ============================================
+        SELECT @FailedAttempts = COUNT(*)
+        FROM FailedLoginAttempts
+        WHERE Username = @Username
+          AND AttemptDate > DATEADD(MINUTE, -15, GETDATE());
+        
+        IF @FailedAttempts >= 5
+        BEGIN
+            -- Log lockout attempt
+            INSERT INTO AuditLog (UserID, Action, IPAddress, Details)
+            VALUES (NULL, 'LOGIN_BLOCKED_LOCKOUT', @IPAddress, 
+                    'User: ' + @Username + ' - Too many failed attempts');
+            
+            SELECT 
+                0 AS Success, 
+                'Account temporarily locked due to multiple failed login attempts. Please try again in 15 minutes.' AS Message;
+            RETURN;
+        END
+        
+    -- Validate user credentials
+    SELECT 
+        @UserID = UserID,
+        @IsActive = IsActive
+    FROM Users
+    WHERE Username = @Username 
+        AND PasswordHash = @PasswordHash;
+
+
+    
+    IF @UserID IS NULL
+    BEGIN
+        -- Invalid credentials
+        SELECT 0 AS Success, 'Invalid username or password' AS Message;
+        RETURN;
+    END
+    
+    IF @IsActive = 0
+    BEGIN
+        -- User account is inactive
+        SELECT 0 AS Success, 'User account is inactive' AS Message;
+        RETURN;
+    END
+    
+    -- Generate session token
+    SET @SessionToken = CONVERT(NVARCHAR(255), NEWID());
+    
+    -- Create session
+    INSERT INTO UserSessions (UserID, SessionToken, IPAddress, UserAgent)
+    VALUES (@UserID, @SessionToken, @IPAddress, @UserAgent);
+    
+    -- Update last login date
+    UPDATE Users
+    SET LastLoginDate = GETDATE()
+    WHERE UserID = @UserID;
+    
+    -- Return success with user details
+    SELECT 
+        1 AS Success,
+        'Login successful' AS Message,
+        @SessionToken AS SessionToken,
+        u.UserID,
+        u.Username,
+        u.FirstName,
+        u.LastName,
+        u.Email,
+        u.Role
+    FROM Users u
+    WHERE u.UserID = @UserID;
+END
+GO
+
+-- Logout procedure
+CREATE OR ALTER PROCEDURE sp_UserLogout
+    @SessionToken NVARCHAR(255)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    UPDATE UserSessions
+    SET 
+        IsActive = 0,
+        LogoutDate = GETDATE()
+    WHERE SessionToken = @SessionToken
+        AND IsActive = 1;
+    
+    SELECT 1 AS Success, 'Logout successful' AS Message;
+END
+GO
+-- ============================================
+        -- STEP 2: RETRIEVE USER CREDENTIALS
+        -- Get stored password hash and salt for verification
+        -- ============================================
+        SELECT 
+            @UserID = UserID,
+            @IsActive = IsActive,
+            @StoredPasswordHash = PasswordHash,
+            @PasswordSalt = PasswordSalt
+        FROM Users
+        WHERE Username = @Username;
+        
+        -- Check if user exists
+        IF @UserID IS NULL
+        BEGIN
+            -- Record failed attempt (prevents username enumeration by using generic message)
+            INSERT INTO FailedLoginAttempts (Username, IPAddress)
+            VALUES (@Username, @IPAddress);
+            
+            INSERT INTO AuditLog (UserID, Action, IPAddress, Details)
+            VALUES (NULL, 'LOGIN_FAILED_INVALID_USER', @IPAddress, 'Username: ' + @Username);
+            
+            -- Generic error message to prevent username enumeration
+            SELECT 0 AS Success, 'Invalid username or password' AS Message;
+            RETURN;
+        END
+        
+        -- ============================================
+        -- STEP 3: VERIFY PASSWORD
+        -- Compute hash with salt and compare with stored hash
+        -- ============================================
+        -- Compute hash using SHA2_512 with salt
+        SET @ComputedHash = CONVERT(NVARCHAR(255), 
+            HASHBYTES('SHA2_512', @Password + ISNULL(@PasswordSalt, '')), 2);
+        
+        IF @ComputedHash != @StoredPasswordHash
+        BEGIN
+            -- Record failed attempt
+            INSERT INTO FailedLoginAttempts (Username, IPAddress)
+            VALUES (@Username, @IPAddress);
+            
+            INSERT INTO AuditLog (UserID, Action, IPAddress, Details)
+            VALUES (@UserID, 'LOGIN_FAILED_INVALID_PASSWORD', @IPAddress, NULL);
+            
+            SELECT 0 AS Success, 'Invalid username or password' AS Message;
+            RETURN;
+        END
+        
+        -- ============================================
+        -- STEP 4: CHECK ACCOUNT STATUS
+        -- Ensure user account is active
+        -- ============================================
+        IF @IsActive = 0
+        BEGIN
+            INSERT INTO AuditLog (UserID, Action, IPAddress, Details)
+            VALUES (@UserID, 'LOGIN_FAILED_INACTIVE_ACCOUNT', @IPAddress, NULL);
+            
+            SELECT 0 AS Success, 'Your account is inactive. Please contact support for assistance.' AS Message;
+            RETURN;
+        END
+        
+        -- ============================================
+        -- STEP 5: CLEAR FAILED LOGIN ATTEMPTS
+        -- Successful login - remove previous failed attempts
+        -- ============================================
+        DELETE FROM FailedLoginAttempts
+        WHERE Username = @Username;
+        
+        -- ============================================
+        -- STEP 6: INVALIDATE EXISTING SESSIONS
+        -- Optional: Expire any active sessions for this user
+        -- Uncomment if you want single-session-per-user policy
+        -- ============================================
+        UPDATE UserSessions
+        SET IsActive = 0, LogoutDate = GETDATE()
+        WHERE UserID = @UserID AND IsActive = 1;
+        
+        -- ============================================
+        -- STEP 7: GENERATE SECURE SESSION TOKEN
+        -- Create cryptographically secure session identifier
+        -- ============================================
+        SET @SessionToken = CONVERT(NVARCHAR(255), 
+            HASHBYTES('SHA2_256', 
+                CAST(NEWID() AS NVARCHAR(36)) + 
+                CAST(GETDATE() AS NVARCHAR(50)) + 
+                @Username + 
+                ISNULL(@IPAddress, '')
+            ), 2);
+        
+        -- Set session expiry (24 hours from now)
+        SET @SessionExpiryDate = DATEADD(HOUR, 24, GETDATE());
+        
+        -- ============================================
+        -- STEP 8: CREATE NEW SESSION
+        -- Store session details in database
+        -- ============================================
+        INSERT INTO UserSessions (UserID, SessionToken, IPAddress, UserAgent, ExpiryDate, IsActive, LoginDate)
+        VALUES (@UserID, @SessionToken, @IPAddress, @UserAgent, @SessionExpiryDate, 1, GETDATE());
+        
+        -- ============================================
+        -- STEP 9: UPDATE LAST LOGIN DATE
+        -- Track user login activity
+        -- ============================================
+        UPDATE Users
+        SET LastLoginDate = GETDATE()
+        WHERE UserID = @UserID;
+        
+        -- ============================================
+        -- STEP 10: LOG SUCCESSFUL LOGIN
+        -- Create audit trail
+        -- ============================================
+        INSERT INTO AuditLog (UserID, Action, IPAddress, Details)
+        VALUES (@UserID, 'LOGIN_SUCCESS', @IPAddress, 'Session created successfully');
+        
+        -- ============================================
+        -- STEP 11: RETURN SUCCESS WITH USER DETAILS
+        -- Send session token and user information to client
+        -- ============================================
+        SELECT
+            1 AS Success,
+            'Login successful' AS Message,
+            @SessionToken AS SessionToken,
+            @SessionExpiryDate AS ExpiryDate,
+            u.UserID,
+            u.Username,
+            u.FirstName,
+            u.LastName,
+            u.Email,
+            u.Role
+        FROM Users u
+        WHERE u.UserID = @UserID;
+        
+    END TRY
+    BEGIN CATCH
+        -- ============================================
+        -- ERROR HANDLING
+        -- Log error and return generic error message
+        -- ============================================
+        INSERT INTO ErrorLog (ErrorMessage, ErrorProcedure, ErrorLine)
+        VALUES (
+            ERROR_MESSAGE(),
+            ERROR_PROCEDURE(),
+            ERROR_LINE()
+        );
+        
+        -- Return error to client without exposing internal details
+        SELECT 
+            0 AS Success, 
+            'An error occurred during login. Please try again or contact support if the problem persists.' AS Message;
+    END CATCH
+END
+GO
+-- ============================================
+-- STORED PROCEDURE: VALIDATE SESSION
+-- Purpose: Verify session token is valid and not expired
+-- Used by: All protected endpoints in the application
+-- Security Features:
+--   - Token validation
+--   - Expiry checking
+--   - Automatic session cleanup
+-- ============================================
+CREATE OR ALTER PROCEDURE sp_ValidateSession
+    @SessionToken NVARCHAR(255)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    DECLARE @UserID INT;
+    DECLARE @IsActive BIT;
+    DECLARE @ExpiryDate DATETIME;
+    
+    BEGIN TRY
+        -- Retrieve session details
+        SELECT 
+            @UserID = us.UserID,
+            @IsActive = us.IsActive,
+            @ExpiryDate = us.ExpiryDate
+        FROM UserSessions us
+        WHERE us.SessionToken = @SessionToken;
+        
+        -- Check if session exists
+        IF @UserID IS NULL
+        BEGIN
+            SELECT 0 AS IsValid, 'Session not found' AS Message;
+            RETURN;
+        END
+        
+        -- Check if session is active
+        IF @IsActive = 0
+        BEGIN
+            SELECT 0 AS IsValid, 'Session has been terminated' AS Message;
+            RETURN;
+        END
+        
+        -- Check if session has expired
+        IF @ExpiryDate < GETDATE()
+        BEGIN
+            -- Automatically expire the session
+            UPDATE UserSessions
+            SET IsActive = 0, LogoutDate = GETDATE()
+            WHERE SessionToken = @SessionToken;
+            
+            -- Log session expiry
+            INSERT INTO AuditLog (UserID, Action, IPAddress, Details)
+            SELECT 
+                @UserID, 
+                'SESSION_EXPIRED', 
+                IPAddress, 
+                'Session expired automatically'
+            FROM UserSessions
+            WHERE SessionToken = @SessionToken;
+            
+            SELECT 0 AS IsValid, 'Session has expired. Please log in again.' AS Message;
+            RETURN;
+        END
+        
+        -- Session is valid - return user details
+        SELECT 
+            1 AS IsValid,
+            'Session is valid' AS Message,
+            u.UserID,
+            u.Username,
+            u.FirstName,
+            u.LastName,
+            u.Email,
+            u.Role,
+            @ExpiryDate AS ExpiryDate
+        FROM Users u
+        WHERE u.UserID = @UserID;
+        
+    END TRY
+    BEGIN CATCH
+        -- Log error
+        INSERT INTO ErrorLog (ErrorMessage, ErrorProcedure, ErrorLine)
+        VALUES (
+            ERROR_MESSAGE(),
+            ERROR_PROCEDURE(),
+            ERROR_LINE()
+        );
+        
+        SELECT 0 AS IsValid, 'An error occurred during session validation' AS Message;
+    END CATCH
+END
+GO
+-- ============================================
+-- UTILITY PROCEDURE: CLEANUP EXPIRED SESSIONS
+-- Purpose: Remove expired sessions and old failed login attempts
+-- Recommended: Run this as a scheduled job (daily)
+-- ============================================
+CREATE OR ALTER PROCEDURE sp_CleanupExpiredSessions
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    DECLARE @DeletedSessions INT;
+    DECLARE @DeletedAttempts INT;
+    
+    BEGIN TRY
+        -- Deactivate expired sessions
+        UPDATE UserSessions
+        SET IsActive = 0, LogoutDate = GETDATE()
+        WHERE IsActive = 1
+          AND ExpiryDate < GETDATE();
+        
+        SET @DeletedSessions = @@ROWCOUNT;
+        
+        -- Delete old failed login attempts (older than 7 days)
+        DELETE FROM FailedLoginAttempts
+        WHERE AttemptDate < DATEADD(DAY, -7, GETDATE());
+        
+        SET @DeletedAttempts = @@ROWCOUNT;
+        
+        -- Log cleanup activity
+        INSERT INTO AuditLog (UserID, Action, IPAddress, Details)
+        VALUES (NULL, 'CLEANUP_EXECUTED', NULL, 
+                'Expired sessions: ' + CAST(@DeletedSessions AS NVARCHAR(10)) + 
+                ', Failed attempts removed: ' + CAST(@DeletedAttempts AS NVARCHAR(10)));
+        
+        SELECT 
+            1 AS Success, 
+            'Cleanup completed' AS Message,
+            @DeletedSessions AS ExpiredSessionsCleaned,
+            @DeletedAttempts AS FailedAttemptsRemoved;
+        
+    END TRY
+    BEGIN CATCH
+        INSERT INTO ErrorLog (ErrorMessage, ErrorProcedure, ErrorLine)
+        VALUES (
+            ERROR_MESSAGE(),
+            ERROR_PROCEDURE(),
+            ERROR_LINE()
+        );
+        
+        SELECT 0 AS Success, 'Cleanup failed' AS Message;
+    END CATCH
+END
+GO
+
+-- ============================================
+-- UTILITY PROCEDURE: CREATE NEW USER (HELPER)
+-- Purpose: Create a new user with secure password hashing
+-- Used by: Admin panel or registration system
+-- ============================================
+CREATE OR ALTER PROCEDURE sp_CreateUser
+    @Username NVARCHAR(50),
+    @Password NVARCHAR(255),
+    @FirstName NVARCHAR(50),
+    @LastName NVARCHAR(50),
+    @Email NVARCHAR(100),
+    @Role NVARCHAR(20) = 'Customer'
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    DECLARE @PasswordSalt NVARCHAR(255);
+    DECLARE @PasswordHash NVARCHAR(255);
+    DECLARE @NewUserID INT;
+    
+    BEGIN TRY
+        -- Check if username already exists
+        IF EXISTS (SELECT 1 FROM Users WHERE Username = @Username)
+        BEGIN
+            SELECT 0 AS Success, 'Username already exists' AS Message;
+            RETURN;
+        END
+        
+        -- Check if email already exists
+        IF EXISTS (SELECT 1 FROM Users WHERE Email = @Email)
+        BEGIN
+            SELECT 0 AS Success, 'Email already registered' AS Message;
+            RETURN;
+        END
+        
+        -- Generate random salt
+        SET @PasswordSalt = CONVERT(NVARCHAR(255), NEWID());
+        
+        -- Hash password with salt
+        SET @PasswordHash = CONVERT(NVARCHAR(255), 
+            HASHBYTES('SHA2_512', @Password + @PasswordSalt), 2);
+        
+        -- Insert new user
+        INSERT INTO Users (Username, PasswordHash, PasswordSalt, FirstName, LastName, Email, Role, IsActive, CreatedDate)
+        VALUES (@Username, @PasswordHash, @PasswordSalt, @FirstName, @LastName, @Email, @Role, 1, GETDATE());
+        
+        SET @NewUserID = SCOPE_IDENTITY();
+        
+        -- Log user creation
+        INSERT INTO AuditLog (UserID, Action, IPAddress, Details)
+        VALUES (@NewUserID, 'USER_CREATED', NULL, 'New user account created');
+        
+        SELECT 
+            1 AS Success, 
+            'User created successfully' AS Message,
+            @NewUserID AS UserID;
+        
+    END TRY
+    BEGIN CATCH
+        INSERT INTO ErrorLog (ErrorMessage, ErrorProcedure, ErrorLine)
+        VALUES (
+            ERROR_MESSAGE(),
+            ERROR_PROCEDURE(),
+            ERROR_LINE()
+        );
+        
+        SELECT 0 AS Success, 'An error occurred while creating user' AS Message;
+    END CATCH
+END
+GO
+-- ============================================
+-- END OF AUTHENTICATION MODULE
+-- ============================================
+
+PRINT 'Procedures created:';
+PRINT '  - sp_UserLogin (Enhanced security with salt, lockout protection)';
+PRINT '  - sp_UserLogout (Session termination)';
+PRINT '  - sp_ValidateSession (Token validation)';
+PRINT '  - sp_CleanupExpiredSessions (Maintenance)';
+PRINT '  - sp_CreateUser (User registration)';
+PRINT 'Supporting tables created:';
+PRINT '  - AuditLog (Authentication event tracking)';
+PRINT '  - ErrorLog (Error tracking)';
+PRINT '  - FailedLoginAttempts (Brute force protection)';
+PRINT 'IMPORTANT: Update existing user passwords using sp_CreateUser or manually add PasswordSalt';
+GO
+
+
+
+
+
+
+-- ============================================
+-- HELPER: Audit logging wrapper
+-- ============================================
+CREATE OR ALTER PROCEDURE sp_LogAudit
+    @TableName NVARCHAR(100),
+    @RecordID INT,
+    @Action NVARCHAR(50),
+    @ChangedBy INT
+AS
+BEGIN
+    INSERT INTO AuditLog (TableName, RecordID, Action, ChangedBy)
+    VALUES (@TableName, @RecordID, @Action, @ChangedBy);
+END
+GO
+-- ============================================
+-- GET INVENTORY
+-- Returns inventory with stock status
+-- ============================================
+CREATE OR ALTER PROCEDURE sp_GetInventory
+    @ProductID INT = NULL,
+    @LowStockOnly BIT = 0
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    SELECT 
+        i.InventoryID,
+        i.ProductID,
+        p.ProductCode,
+        p.ProductName,
+        p.Category,
+        i.QuantityInStock,
+        i.QuantityReserved,
+        i.QuantityAvailable,
+        p.MinimumStockLevel,
+        p.ReorderLevel,
+        p.UnitPrice,
+        (i.QuantityInStock * p.UnitPrice) AS TotalValue,
+        CASE 
+            WHEN i.QuantityInStock <= p.MinimumStockLevel THEN 'Low'
+            WHEN i.QuantityInStock <= p.ReorderLevel THEN 'Medium'
+            ELSE 'High'
+        END AS StockStatus,
+        i.Location,
+        i.LastStockCheck,
+        i.LastUpdatedDate
+    FROM Inventory i
+    INNER JOIN Products p ON i.ProductID = p.ProductID
+    WHERE (@ProductID IS NULL OR i.ProductID = @ProductID)
+      AND (@LowStockOnly = 0 OR i.QuantityInStock <= p.MinimumStockLevel)
+      AND p.IsActive = 1
+    ORDER BY 
+        CASE WHEN i.QuantityInStock <= p.MinimumStockLevel THEN 1
+             WHEN i.QuantityInStock <= p.ReorderLevel THEN 2
+             ELSE 3 END,
+        p.ProductName;
+END
+GO
+
+-- ============================================
+-- ADD INWARD TRANSACTION
+-- Records stock received from supplier
+-- ============================================
+CREATE OR ALTER PROCEDURE sp_AddInwardTransaction
+    @ProductID INT,
+    @SupplierID INT,
+    @Quantity INT,
+    @UnitCost DECIMAL(10,2),
+    @ReferenceNumber NVARCHAR(100) = NULL,
+    @InvoiceNumber NVARCHAR(100) = NULL,
+    @BatchNumber NVARCHAR(100) = NULL,
+    @Notes NVARCHAR(MAX) = NULL,
+    @ReceivedBy INT,
+    @AutoApprove BIT = 0
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        
+        DECLARE @InwardID INT;
+        DECLARE @TransactionNumber NVARCHAR(50) = 
+            'INW-' + FORMAT(GETDATE(), 'yyyyMMdd') + '-' + 
+            RIGHT('00000' + CAST(NEXT VALUE FOR seq_InwardTransaction AS NVARCHAR), 5);
+        
+        -- Insert transaction
+        INSERT INTO InwardTransactions (
+            TransactionNumber, ProductID, SupplierID, Quantity, UnitCost,
+            ReferenceNumber, InvoiceNumber, BatchNumber, Notes, ReceivedBy,
+            Status
+        )
+        VALUES (
+            @TransactionNumber, @ProductID, @SupplierID, @Quantity, @UnitCost,
+            @ReferenceNumber, @InvoiceNumber, @BatchNumber, @Notes, @ReceivedBy,
+            CASE WHEN @AutoApprove = 1 THEN 'Approved' ELSE 'Pending' END
+        );
+        
+        SET @InwardID = SCOPE_IDENTITY();
+        
+        -- Update inventory if auto-approved
+        IF @AutoApprove = 1
+        BEGIN
+            UPDATE Inventory
+            SET QuantityInStock = QuantityInStock + @Quantity,
+                LastUpdatedDate = GETDATE(),
+                LastUpdatedBy = @ReceivedBy
+            WHERE ProductID = @ProductID;
+            
+            -- Create inventory record if doesn't exist
+            IF @@ROWCOUNT = 0
+                INSERT INTO Inventory (ProductID, QuantityInStock, LastUpdatedBy)
+                VALUES (@ProductID, @Quantity, @ReceivedBy);
+        END
+        
+        EXEC sp_LogAudit 'InwardTransactions', @InwardID, 'INSERT', @ReceivedBy;
+        
+        COMMIT TRANSACTION;
+        
+        SELECT 1 AS Success, 
+               'Inward transaction recorded' AS Message,
+               @InwardID AS InwardID,
+               @TransactionNumber AS TransactionNumber;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+        
+        INSERT INTO ErrorLog (ErrorMessage, ErrorProcedure, ErrorLine)
+        VALUES (ERROR_MESSAGE(), ERROR_PROCEDURE(), ERROR_LINE());
+        
+        SELECT 0 AS Success, ERROR_MESSAGE() AS Message;
+    END CATCH
+END
+GO
+
+-- ============================================
+-- ADD OUTWARD TRANSACTION
+-- Records stock dispatched to customer
+-- ============================================
+CREATE OR ALTER PROCEDURE sp_AddOutwardTransaction
+    @ProductID INT,
+    @Quantity INT,
+    @UnitPrice DECIMAL(10,2) = NULL,
+    @Reason NVARCHAR(50),
+    @CustomerName NVARCHAR(200) = NULL,
+    @ReferenceNumber NVARCHAR(100) = NULL,
+    @OrderNumber NVARCHAR(100) = NULL,
+    @Notes NVARCHAR(MAX) = NULL,
+    @DispatchedBy INT,
+    @AutoApprove BIT = 0
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        
+        DECLARE @OutwardID INT;
+        DECLARE @CurrentStock INT;
+        
+        -- Validate stock availability
+        SELECT @CurrentStock = QuantityAvailable,
+               @UnitPrice = ISNULL(@UnitPrice, p.UnitPrice)
+        FROM Inventory i
+        INNER JOIN Products p ON i.ProductID = p.ProductID
+        WHERE i.ProductID = @ProductID;
+        
+        IF @CurrentStock IS NULL OR @CurrentStock < @Quantity
+        BEGIN
+            ROLLBACK TRANSACTION;
+            SELECT 0 AS Success, 
+                   'Insufficient stock' AS Message,
+                   ISNULL(@CurrentStock, 0) AS CurrentStock;
+            RETURN;
+        END
+        
+        DECLARE @TransactionNumber NVARCHAR(50) = 
+            'OUT-' + FORMAT(GETDATE(), 'yyyyMMdd') + '-' + 
+            RIGHT('00000' + CAST(NEXT VALUE FOR seq_OutwardTransaction AS NVARCHAR), 5);
+        
+        -- Insert transaction
+        INSERT INTO OutwardTransactions (
+            TransactionNumber, ProductID, Quantity, UnitPrice, Reason,
+            CustomerName, ReferenceNumber, OrderNumber, Notes, DispatchedBy,
+            Status
+        )
+        VALUES (
+            @TransactionNumber, @ProductID, @Quantity, @UnitPrice, @Reason,
+            @CustomerName, @ReferenceNumber, @OrderNumber, @Notes, @DispatchedBy,
+            CASE WHEN @AutoApprove = 1 THEN 'Approved' ELSE 'Pending' END
+        );
+        
+        SET @OutwardID = SCOPE_IDENTITY();
+        
+        -- Update inventory if auto-approved
+        IF @AutoApprove = 1
+            UPDATE Inventory
+            SET QuantityInStock = QuantityInStock - @Quantity,
+                LastUpdatedDate = GETDATE(),
+                LastUpdatedBy = @DispatchedBy
+            WHERE ProductID = @ProductID;
+        
+        EXEC sp_LogAudit 'OutwardTransactions', @OutwardID, 'INSERT', @DispatchedBy;
+        
+        COMMIT TRANSACTION;
+        
+        SELECT 1 AS Success,
+               'Outward transaction recorded' AS Message,
+               @OutwardID AS OutwardID,
+               @TransactionNumber AS TransactionNumber;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+        
+        INSERT INTO ErrorLog (ErrorMessage, ErrorProcedure, ErrorLine)
+        VALUES (ERROR_MESSAGE(), ERROR_PROCEDURE(), ERROR_LINE());
+        
+        SELECT 0 AS Success, ERROR_MESSAGE() AS Message;
+    END CATCH
+END
+GO
+
+-- ============================================
+-- CREATE PURCHASE ORDER
+-- Generates PO with line items (JSON input)
+-- ============================================
+CREATE OR ALTER PROCEDURE sp_CreatePurchaseOrder
+    @SupplierID INT,
+    @ExpectedDeliveryDate DATE = NULL,
+    @Notes NVARCHAR(MAX) = NULL,
+    @CreatedBy INT,
+    @OrderDetails NVARCHAR(MAX) -- JSON: [{ProductID, Quantity, UnitPrice}]
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        
+        DECLARE @OrderID INT;
+        DECLARE @OrderNumber NVARCHAR(50) = 
+            'PO-' + FORMAT(GETDATE(), 'yyyyMMdd') + '-' + 
+            RIGHT('00000' + CAST(NEXT VALUE FOR seq_PurchaseOrder AS NVARCHAR), 5);
+        
+        -- Create order header
+        INSERT INTO PurchaseOrders (OrderNumber, SupplierID, ExpectedDeliveryDate, Notes, CreatedBy)
+        VALUES (@OrderNumber, @SupplierID, @ExpectedDeliveryDate, @Notes, @CreatedBy);
+        
+        SET @OrderID = SCOPE_IDENTITY();
+        
+        -- Insert order details from JSON
+        INSERT INTO PurchaseOrderDetails (OrderID, ProductID, Quantity, UnitPrice)
+        SELECT @OrderID,
+               JSON_VALUE(value, '$.ProductID'),
+               JSON_VALUE(value, '$.Quantity'),
+               JSON_VALUE(value, '$.UnitPrice')
+        FROM OPENJSON(@OrderDetails);
+        
+        -- Update total amount
+        UPDATE PurchaseOrders
+        SET TotalAmount = (SELECT SUM(TotalPrice) FROM PurchaseOrderDetails WHERE OrderID = @OrderID)
+        WHERE OrderID = @OrderID;
+        
+        EXEC sp_LogAudit 'PurchaseOrders', @OrderID, 'INSERT', @CreatedBy;
+        
+        COMMIT TRANSACTION;
+        
+        SELECT 1 AS Success,
+               'Purchase order created' AS Message,
+               @OrderID AS OrderID,
+               @OrderNumber AS OrderNumber;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+        
+        INSERT INTO ErrorLog (ErrorMessage, ErrorProcedure, ErrorLine)
+        VALUES (ERROR_MESSAGE(), ERROR_PROCEDURE(), ERROR_LINE());
+        
+        SELECT 0 AS Success, ERROR_MESSAGE() AS Message;
+    END CATCH
+END
+GO
+
+-- ============================================
+-- RECEIVE PURCHASE ORDER
+-- Marks PO as received, updates inventory
+-- ============================================
+CREATE OR ALTER PROCEDURE sp_ReceivePurchaseOrder
+    @OrderID INT,
+    @ReceivedBy INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        
+        DECLARE @SupplierID INT, @OrderNumber NVARCHAR(50);
+        
+        -- Validate order exists
+        SELECT @SupplierID = SupplierID, @OrderNumber = OrderNumber
+        FROM PurchaseOrders
+        WHERE OrderID = @OrderID;
+        
+        IF @OrderNumber IS NULL
+        BEGIN
+            ROLLBACK TRANSACTION;
+            SELECT 0 AS Success, 'Order not found' AS Message;
+            RETURN;
+        END
+        
+        -- Create inward transactions
+        INSERT INTO InwardTransactions (
+            TransactionNumber, ProductID, SupplierID, Quantity, UnitCost,
+            ReferenceNumber, ReceivedBy, Status
+        )
+        SELECT 
+            'INW-' + @OrderNumber + '-' + CAST(od.OrderDetailID AS NVARCHAR),
+            od.ProductID, @SupplierID, od.Quantity, od.UnitPrice,
+            @OrderNumber, @ReceivedBy, 'Approved'
+        FROM PurchaseOrderDetails od
+        WHERE od.OrderID = @OrderID;
+        
+        -- Update inventory
+        UPDATE i
+        SET QuantityInStock = i.QuantityInStock + od.Quantity,
+            LastUpdatedDate = GETDATE(),
+            LastUpdatedBy = @ReceivedBy
+        FROM Inventory i
+        INNER JOIN PurchaseOrderDetails od ON i.ProductID = od.ProductID
+        WHERE od.OrderID = @OrderID;
+        
+        -- Update order
+        UPDATE PurchaseOrders
+        SET Status = 'Received',
+            ActualDeliveryDate = CAST(GETDATE() AS DATE),
+            ModifiedBy = @ReceivedBy,
+            ModifiedDate = GETDATE()
+        WHERE OrderID = @OrderID;
+        
+        -- Update order details
+        UPDATE PurchaseOrderDetails
+        SET QuantityReceived = Quantity
+        WHERE OrderID = @OrderID;
+        
+        EXEC sp_LogAudit 'PurchaseOrders', @OrderID, 'RECEIVE', @ReceivedBy;
+        
+        COMMIT TRANSACTION;
+        
+        SELECT 1 AS Success, 'Order received, inventory updated' AS Message;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+        
+        INSERT INTO ErrorLog (ErrorMessage, ErrorProcedure, ErrorLine)
+        VALUES (ERROR_MESSAGE(), ERROR_PROCEDURE(), ERROR_LINE());
+        
+        SELECT 0 AS Success, ERROR_MESSAGE() AS Message;
+    END CATCH
+END
+GO
+
+PRINT 'Procedures: sp_GetInventory, sp_AddInwardTransaction, sp_AddOutwardTransaction,';
+PRINT '            sp_CreatePurchaseOrder, sp_ReceivePurchaseOrder';
+GO
+
+
+Database (MSSQL) - Testing sample data
+
+USE MidesInventory;
+GO
+
+SET NOCOUNT ON;
+GO
+
+-- ============================================
+-- CREATE USERS (Using sp_CreateUser for proper password hashing)
+-- ============================================
+PRINT 'Creating users with secure password hashing...';
+
+EXEC sp_CreateUser 'admin', 'Admin@2024!', 'System', 'Administrator', 'admin@midescollection.com', 'Admin';
+EXEC sp_CreateUser 'jsmith', 'Manager@2024!', 'John', 'Smith', 'john.smith@midescollection.com', 'Manager';
+EXEC sp_CreateUser 'staff', 'Staff@2024!', 'Jane', 'Doe', 'jane.doe@midescollection.com', 'Staff';
+EXEC sp_CreateUser 'mwilliams', 'Staff@2024!', 'Michael', 'Williams', 'michael.williams@midescollection.com', 'Staff';
+GO
+
+-- ============================================
+-- INSERT SUPPLIERS
+-- ============================================
+INSERT INTO Suppliers (SupplierCode, SupplierName, ContactName, Email, Phone, Address, City, PostalCode, Country, PaymentTerms, Rating, CreatedBy)
+VALUES 
+    ('SUP001', 'Premium Hair Ltd', 'Sarah Johnson', 'sarah@premiumhair.com', '+44 20 7123 4567', '123 Hair Street', 'London', 'EC1A 1BB', 'United Kingdom', 'Net 30', 4.5, 1),
+    ('SUP002', 'Hair World Suppliers', 'David Chen', 'david@hairworld.com', '+44 161 234 5678', '456 Extension Ave', 'Manchester', 'M1 1AA', 'United Kingdom', 'Net 45', 4.0, 1),
+    ('SUP003', 'Extensions International', 'Maria Garcia', 'maria@extensions-int.com', '+44 121 345 6789', '789 Beauty Road', 'Birmingham', 'B1 1BB', 'United Kingdom', 'Net 30', 4.8, 1),
+    ('SUP004', 'Quality Wigs Co', 'James Brown', 'james@qualitywigs.co.uk', '+44 113 456 7890', '321 Wig Lane', 'Leeds', 'LS1 1AA', 'United Kingdom', 'COD', 3.5, 1);
+
+-- ============================================
+-- INSERT PRODUCTS
+-- ============================================
+INSERT INTO Products (ProductCode, ProductName, Description, Category, UnitPrice, CostPrice, MinimumStockLevel, ReorderLevel, CreatedBy)
+VALUES 
+    ('ARIEL-001', 'Ariel', 'Premium auburn wavy wig - High quality synthetic fiber', 'Wigs', 250.00, 150.00, 10, 20, 1),
+    ('BODY-001', 'Body Wave', 'Luxurious body wave hair extension bundles - 100% human hair', 'Extensions', 40.00, 25.00, 20, 40, 1),
+    ('MAINT-001', 'Maintenance Kit', 'Complete hair maintenance kit - shampoo, conditioner, styling products', 'Maintenance', 20.00, 12.00, 15, 30, 1),
+    ('LEXY-001', 'Lexy', 'Brown wavy wig - Natural looking premium quality', 'Wigs', 220.00, 130.00, 10, 20, 1),
+    ('CURLY-001', 'Curly Delight', 'Tight curl pattern hair extensions - Premium grade', 'Extensions', 45.00, 28.00, 15, 30, 1),
+    ('STRAIGHT-001', 'Silky Straight', 'Bone straight hair extensions - Ultra smooth', 'Extensions', 38.00, 23.00, 18, 35, 1);
+
+-- ============================================
+-- INSERT INITIAL INVENTORY
+-- ============================================
+INSERT INTO Inventory (ProductID, QuantityInStock, QuantityReserved, Location, LastUpdatedBy)
+VALUES 
+    (1, 45, 2, 'Main Warehouse', 1),
+    (2, 120, 5, 'Main Warehouse', 1),
+    (3, 8, 0, 'Main Warehouse', 1),  -- Low stock scenario
+    (4, 32, 1, 'Main Warehouse', 1),
+    (5, 28, 0, 'Main Warehouse', 1),
+    (6, 55, 3, 'Main Warehouse', 1);
+
+-- ============================================
+-- INSERT INWARD TRANSACTIONS (Last 30 days)
+-- ============================================
+INSERT INTO InwardTransactions (TransactionNumber, ProductID, SupplierID, Quantity, UnitCost, ReferenceNumber, TransactionDate, ReceivedBy, Status)
+VALUES 
+    ('INW-20260201-001', 1, 1, 20, 150.00, 'PO-001', DATEADD(DAY, -15, GETDATE()), 1, 'Approved'),
+    ('INW-20260204-002', 2, 2, 50, 25.00, 'PO-002', DATEADD(DAY, -12, GETDATE()), 3, 'Approved'),
+    ('INW-20260208-003', 4, 3, 15, 130.00, 'PO-003', DATEADD(DAY, -8, GETDATE()), 3, 'Approved'),
+    ('INW-20260211-004', 5, 1, 30, 28.00, 'PO-004', DATEADD(DAY, -5, GETDATE()), 1, 'Approved'),
+    ('INW-20260213-005', 2, 2, 30, 25.00, 'PO-005', DATEADD(DAY, -3, GETDATE()), 3, 'Approved'),
+    ('INW-20260215-006', 6, 3, 25, 23.00, 'PO-006', DATEADD(DAY, -1, GETDATE()), 1, 'Approved');
+
+-- ============================================
+-- INSERT OUTWARD TRANSACTIONS (Last 30 days)
+-- ============================================
+INSERT INTO OutwardTransactions (TransactionNumber, ProductID, Quantity, UnitPrice, Reason, CustomerName, ReferenceNumber, TransactionDate, DispatchedBy, Status)
+VALUES 
+    ('OUT-20260206-001', 1, 5, 250.00, 'Sale', 'Sarah Williams', 'ORD-1001', DATEADD(DAY, -10, GETDATE()), 3, 'Approved'),
+    ('OUT-20260207-002', 2, 15, 40.00, 'Sale', 'Emma Brown', 'ORD-1002', DATEADD(DAY, -9, GETDATE()), 3, 'Approved'),
+    ('OUT-20260209-003', 3, 7, 20.00, 'Sale', 'Olivia Jones', 'ORD-1003', DATEADD(DAY, -7, GETDATE()), 4, 'Approved'),
+    ('OUT-20260210-004', 4, 3, 220.00, 'Sale', 'Sophia Davis', 'ORD-1004', DATEADD(DAY, -6, GETDATE()), 3, 'Approved'),
+    ('OUT-20260212-005', 2, 10, 40.00, 'Sale', 'Isabella Miller', 'ORD-1005', DATEADD(DAY, -4, GETDATE()), 4, 'Approved'),
+    ('OUT-20260213-006', 1, 2, 250.00, 'Sample', 'Marketing Dept', 'SAMPLE-001', DATEADD(DAY, -3, GETDATE()), 1, 'Approved'),
+    ('OUT-20260214-007', 6, 5, 38.00, 'Sale', 'Mia Wilson', 'ORD-1006', DATEADD(DAY, -2, GETDATE()), 3, 'Approved'),
+    ('OUT-20260215-008', 2, 8, 40.00, 'Sale', 'Charlotte Moore', 'ORD-1007', DATEADD(DAY, -1, GETDATE()), 4, 'Approved');
+
+-- ============================================
+-- INSERT PURCHASE ORDERS
+-- ============================================
+INSERT INTO PurchaseOrders (OrderNumber, SupplierID, OrderDate, ExpectedDeliveryDate, Status, TotalAmount, CreatedBy, ApprovedBy, ApprovedDate)
+VALUES 
+    ('PO-20260126-001', 1, DATEADD(DAY, -20, GETDATE()), DATEADD(DAY, -5, GETDATE()), 'Received', 3000.00, 1, 2, DATEADD(DAY, -19, GETDATE())),
+    ('PO-20260131-002', 2, DATEADD(DAY, -15, GETDATE()), DATEADD(DAY, -3, GETDATE()), 'Received', 1250.00, 3, 2, DATEADD(DAY, -14, GETDATE())),
+    ('PO-20260205-003', 3, DATEADD(DAY, -10, GETDATE()), DATEADD(DAY, 5, GETDATE()), 'Ordered', 1950.00, 1, 2, DATEADD(DAY, -9, GETDATE())),
+    ('PO-20260210-004', 1, DATEADD(DAY, -5, GETDATE()), DATEADD(DAY, 10, GETDATE()), 'Ordered', 840.00, 3, 2, DATEADD(DAY, -4, GETDATE())),
+    ('PO-20260213-005', 2, DATEADD(DAY, -2, GETDATE()), DATEADD(DAY, 13, GETDATE()), 'Pending', 750.00, 1, NULL, NULL);
+
+INSERT INTO PurchaseOrderDetails (OrderID, ProductID, Quantity, UnitPrice, QuantityReceived)
+VALUES 
+    (1, 1, 20, 150.00, 20),
+    (2, 2, 50, 25.00, 50),
+    (3, 4, 15, 130.00, 0),
+    (4, 5, 30, 28.00, 0),
+    (5, 2, 30, 25.00, 0);
+
+-- ============================================
+-- INSERT STOCK ADJUSTMENTS
+-- ============================================
+INSERT INTO StockAdjustments (AdjustmentNumber, ProductID, AdjustmentType, QuantityBefore, QuantityChange, QuantityAfter, Reason, AdjustmentDate, AdjustedBy, ApprovedBy)
+VALUES 
+    ('ADJ-20260209-001', 3, 'Subtract', 10, -2, 8, 'Damaged during storage', DATEADD(DAY, -7, GETDATE()), 3, 2),
+    ('ADJ-20260212-002', 5, 'Add', 27, 1, 28, 'Found missing inventory', DATEADD(DAY, -4, GETDATE()), 4, 2);
+
+-- ============================================
+-- INSERT NOTIFICATIONS
+-- ============================================
+INSERT INTO Notifications (UserID, NotificationType, Title, Message, Priority, RelatedEntityType, RelatedEntityID)
+VALUES 
+    (NULL, 'LowStock', 'Low Stock Alert', 'Maintenance Kit is below minimum stock level (8 units)', 'High', 'Product', 3),
+    (1, 'OrderPlaced', 'New Order Placed', 'Purchase Order PO-20260213-005 has been created', 'Normal', 'PurchaseOrder', 5),
+    (2, 'System', 'System Maintenance', 'System maintenance scheduled for this weekend', 'Low', NULL, NULL);
+
+GO
+
+-- ============================================
+-- DATA VALIDATION & SUMMARY
+-- ============================================
+PRINT '';
+PRINT '========================================';
+PRINT 'DATA INSERTION COMPLETE';
+PRINT '========================================';
+PRINT '';
+
+SELECT 
+    'Users' AS TableName, COUNT(*) AS RecordCount FROM Users
+UNION ALL SELECT 'Suppliers', COUNT(*) FROM Suppliers
+UNION ALL SELECT 'Products', COUNT(*) FROM Products
+UNION ALL SELECT 'Inventory', COUNT(*) FROM Inventory
+UNION ALL SELECT 'InwardTransactions', COUNT(*) FROM InwardTransactions
+UNION ALL SELECT 'OutwardTransactions', COUNT(*) FROM OutwardTransactions
+UNION ALL SELECT 'PurchaseOrders', COUNT(*) FROM PurchaseOrders
+UNION ALL SELECT 'PurchaseOrderDetails', COUNT(*) FROM PurchaseOrderDetails
+UNION ALL SELECT 'StockAdjustments', COUNT(*) FROM StockAdjustments
+UNION ALL SELECT 'Notifications', COUNT(*) FROM Notifications;
+
+PRINT '';
+PRINT 'Test Credentials:';
+PRINT '  Admin:   username: admin     password: Admin@2024!';
+PRINT '  Manager: username: jsmith    password: Manager@2024!';
+PRINT '  Staff:   username: staff     password: Staff@2024!';
+PRINT '  Staff:   username: mwilliams password: Staff@2024!';
+PRINT '';
+PRINT 'Database ready for testing and demonstration.';
+GO
+
