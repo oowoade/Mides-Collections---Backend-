@@ -1,0 +1,3007 @@
+
+
+
+Order Booking System for Wig & Hair Accessories Business
+				BCS – Chartered Institute of IT
+				Professional Diploma 
+				Submitted in partial fulfilment of the requirements of
+				BCS Professional Diploma Examination
+
+
+
+
+
+
+
+Candidate Name: Olamide Owoade (Miss)
+Membership No: 995121052
+
+
+
+
+
+
+
+
+
+
+Contents Table
+1. Declaration	5
+2. Acknowledgement	5
+3. Abstract	5
+4. List of Acronyms	5
+5. Introduction	6
+5.1 AIM	6
+5.1.1 Objectives	6
+5.1.2 Scope and Approach	6
+5.1.2 Out of scope	6
+5.2. Analysis of the Current System	6
+5.2.1.Current Operations	6
+5.2.2.Flaws of the Current System	6
+5.3. Proposed Solutions	6
+5.4 Requirement Specifications	6
+5.4.1 Functional Requirements (What the system must do)	6
+5.4.2 Non-Functional Requirements (Qualities the system must have)	6
+5.4.3 Requirements Prioritisation	6
+Must-Have Features (MVP)	6
+Nice-to-Have Features (Future Development)	6
+6. Background & Literature Review	6
+6.1 Existing Order and Booking Systems	6
+6.2 Strengths of Existing Approaches	6
+6.3 Weaknesses and Gaps	6
+6.4 Technology Choices and Tools Used (Python, JavaScript, MSSQL):	6
+6.4.1 Python (Backend Development)	6
+6.4.2 JavaScript (Frontend Development)	6
+6.4.3 MSSQL (Database)	6
+6.4.4 Tools Used	6
+7. System Design	6
+7.1 UML Diagrams	6
+7.1.1 Use Case Diagram	6
+7.1.2 Sequence Diagram	6
+7.2 Screen Flow	6
+7.2.1 Catalogue page (Customer)	6
+7.2.2 Checkout page (Customer)	6
+7.2.3 Staff pages (Login, Dashboard)	6
+7.3 Database Schema	6
+7.3.1. Users	6
+7.3.2. Products	6
+7.3.3. Inventory Table (Stock Tracking)	6
+7.3.4. Suppliers	6
+7.3.5. Inward and Outward Transactions	6
+7.3.6. Purchase Orders and Detailed Purchase Orders	6
+7.3.7.  AuditLog	6
+7.3.8. Notifications	6
+7.3.9.UserSessions	6
+7.3.10. StockAdjustments Table (Inventory Corrections)	6
+7.4 Referential Integrity Analysis	6
+7.4.1 Foreign Key Relationships	6
+8. Testing	6
+8.1 Test Objectives	6
+8.2 Test Scope	6
+8.2.1 In Scope	6
+8.2.2 Out of Scope	6
+8.2.3 Test Levels & Approach	6
+8.3 Unit Testing	6
+8.4 Integration Testing	6
+8.5 System (Functional) Testing	6
+8.6 Database Validation Testing	6
+8.6.1 Database Test Categories	6
+8.7 Security Testing	6
+8.8 Non-Functional Testing	6
+8.8 User Acceptance Testing (UAT)	6
+8.8.1 UAT Participants:	6
+8.8.2 UAT Scenarios:	6
+8.8.3 UAT Feedback Form	6
+8.8.4 Test Data Strategy	6
+8.8.5 Pass/Fail Criteria	6
+8.9 Defect Management	6
+8.10 Traceability Matrix	6
+8.11 SQL Authentication Testing	6
+8.11.1 Security Implementation	6
+8.11.2 .SQL Testing Scenarios	6
+9. Implementation	6
+10. Legal, Ethical, Social, and Professional (LESP) Issues	6
+10.1 Legal	6
+10.2 Ethical	6
+10.3 Social	6
+10.4 Professional	6
+11. Evaluation	6
+11.1 Testing Strategy and Results	6
+11.2 System Strengths	6
+11.3 Limitations	6
+11.4 Scalability Considerations	6
+11.5 Ethical and Legal Considerations	6
+12. Conclusion	6
+13. Appendices	6
+Appendix A - Interview notes	6
+Appendix B – Technology Stack	6
+Backend (Python)	7
+Frontend (JavaScript)	12
+Database (MSSQL) - Stored Procedure	18
+Database (MSSQL) - Testing sample data	49
+Inventory Login	54
+Inventory Dashboard	55
+14. Bibliography	72
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1. Declaration
+I formally declare that this project report is entirely my own original work. It has not been submitted, either in full or in part, for any other academic qualification or award. Throughout the development of this project, I have ensured that all ideas, sources of information, research materials, and references have been accurately and appropriately acknowledged in line with BCS academic regulations.
+I understand the importance of academic integrity and have taken care to uphold the standards expected within this programme. Any contributions or published works that informed this project have been clearly cited and referenced to maintain transparency and credibility.
+Signed: OLAMIDE OWOADE
+Name: Olamide Owoade
+Date: 27/02/2026
+2. Acknowledgement
+I would like to express my sincere appreciation to my BCS tutor and project supervisor for their continuous academic guidance, constructive feedback, and encouragement throughout the development of this project. Their direction strengthened both the technical depth and overall structure of this work.
+I am also grateful to my mentors and peers for their technical insight, practical advice, and support during the design and implementation stages. Their contributions encouraged critical thinking and helped refine key decisions throughout the project lifecycle.
+On a personal note, I would like to acknowledge my mother Oluwaseun Owoade and my sister Ayomide Owoade for their unwavering encouragement, patience, and belief in me throughout this journey. Their support provided stability and motivation during challenging stages of the project. I am also sincerely thankful to Mr Charles Somorin FBCS for his guidance and encouragement, which positively influenced my progress and confidence.
+Finally, I would like to recognise my own commitment and perseverance in completing this project. The process required discipline, resilience, and continuous learning, and I take pride in the growth and determination demonstrated throughout its development.
+
+3. Abstract
+This project details the design and implementation of a web-based Digital Order Booking System for Mides Collection, a hair and accessories enterprise. The system addresses inefficiencies in manual order handling, inventory inaccuracies, and fragmented staff–customer communication. 
+A Python backend manages business logic, validation, and transaction processing, while a Java frontend delivers an interactive user interface. Data persistence is achieved through Microsoft SQL Server, ensuring referential integrity and optimised query performance. 
+UML modelling informed architectural design, and role-based access control strengthened security. The solution demonstrates applied competence in full-stack development, relational database design, and scalable systems engineering.
+4. List of Acronyms
+
+Acronym	Meaning
+BCS	BCS – Chartered Institute of IT
+UML	 Unified Modelling Language
+SQL	 Structured Query Language
+DBMS	 Database Management System
+T-SQL
+
+ACID
+	Transact- Structured Query Language
+Atomicity, Consistency, Isolation and Durability
+
+
+5. Introduction
+Seeing as the industry for wigs and hair accessories is rapidly rising in demands for either custom or standard products, a structured yet efficient customer service is needed. In this field, many small hair businesses rely heavily on taking orders manually, and for the most part can result in delays either from both business owners and consumers, errors, hence leading to loss of continuous sales opportunities.
+5.1 AIM 
+By the end of my project, I aim to create and develop a feasible, user-friendly digital order booking system that simplifies and automates the process of ordering, managing and meeting the customers needs. It will improve all things accuracy in ordering, delivery, communication between the staff and customers. I will make use of Python to develop the backend logic, as it visualises everything behind the scenes and will use Java to make the interface interactive and engaging for the users, bringing the frontend to life. A secure relational database (such as MSSQL) will be used to store and manage all business data.
+5.1.1 Objectives	
+●	Design and develop a web-based order booking system tailored for hair & accessories business
+●	Allow customers to search products, place orders, and receive confirmations online automatically
+●	Automate purchase orders for staff, including order tracking and sending, inventory updates, and notifications
+●	Integrate reporting tools to provide business insights on sales, inventory, and customer trends
+●	System security, flexibility, and easy to use for both customers and business staff.
+5.1.2 Scope and Approach
+●	The system will support order placement, order status tracking and basic inventory management
+●	Administrative features will include order overview and inventory adjustment
+●	The solution will be accessible via standard web browsers on desktop and mobile devices
+5.1.2 Out of scope
+●	Developing real payment systems/gateways, instead I will mimic payments for examples
+●	Advanced customer management/marketing tools are not included in this project
+5.2. Analysis of the Current System
+5.2.1.Current Operations
+Using an interview style, I identified how orders are currently taken and tracked. Orders are taken online via Instagram direct messages or WhatsApp and manually tracked via WhatsApp. Orders received are tracked and stored using a notepad and WhatsApp messaging platform, leading to lost or missing orders 
+When suppliers are contacted, this process includes manually texting via WhatsApp messaging platform and once again orders requested from suppliers are storing using a notepad, leading to delayed or uncertain orders.
+5.2.2.Flaws of the Current System
+Problems faced during manual processing of orders include the tendency to forget to update the customers on their orders placed, leaving customers dissatisfied and lack of trust for the business. There is very slow communication when the business manually contacts the wholesaler via Whatsapp to ship products, and sometimes lose track of orders or forget to confirm back to the customers.
+
+5.3. Proposed Solutions
+To create and develop a feasible, user-friendly digital order booking system that simplifies and automates the process of ordering, managing and meeting the customers needs. It will improve all things accuracy in ordering, delivery, communication between the staff and customers.
+
+5.4 Requirement Specifications
+Requirement gathering is important as it captures the needs of a business and ensures the system meets the requirements my client is after. I conducted an informal interview with my client, who is the small business owner and analysed ways to automate the purchase orders for staff, including order tracking and sending, inventory updates, and notifications system that is not in place. 
+These were a few questions asked:
+1.	What features would be most useful in a digital system? I want customers to see what products are available, place their order themselves, which goes directly to myself and the wholesaler and get an instant confirmation. For me, I’d like to log in and see all the orders in one place and update stock easily
+2.	What is the most important for you as the business owner? Saving time and not having to repeat the same mistakes with orders and stocks
+3.	How do you want the system to protect customer information? I want my customers details kept safe and not exposed, so only the staff should see them and their passwords should remain secure
+4.	Do you need advanced features like marking and customer loyalty tools? That would be nice, but most importantly is a simple working order system and maybe extra features can be a plus in the future
+Summary
+The business currently takes manual orders and tracked online, instagram direct messaging and Whatsapp, which often leads to errors and inefficiencies. Issues recorded include delays in updating customers, forgotten confirmations, slow communication with wholesalers and occasional loss of order details, leading to dissatisfied customer experience and reduced trust in business. The most important factor for the business owner is saving time and avoiding repeated mistakes with orders and stock management. Security was also identified as a priority, with customer details needing to be kept safe, accessible only to staff, and supported by secure password management
+5.4.1 Functional Requirements (What the system must do)
+●	Customers can search for products
+●	Customers can place orders online
+●	Customers receive confirmation
+●	Orders are sent automatically to both the staff and wholesaler
+●	Staff can view/manage orders
+●	Staff can update inventory
+●	Secure login for staff
+
+5.4.2 Non-Functional Requirements (Qualities the system must have)
+●	Usability: The system must be simple and user friendly for customers and staff - eg, get 5 stars from staffs
+●	Security: Customer details must be protected, with restricted access only to staff and passwords must be securely stored (hashing) - using hashing algorithm and no encrypted password
+●	Reliability: Orders and stock updates must be recorded accurately without loss of information
+●	Performance: The system must be quick with response when customer search or place for orders
+●	Scalability: The system should handle potential increase in order placing and search of products
+5.4.3 Requirements Prioritisation
+Must-Have Features (MVP)
+●	Customers can browse and view available products
+●	Customers can place orders directly online (without needing Instagram/WhatsApp)
+●	Customers receive instant order confirmations
+●	Orders are sent automatically to both the business owner and the wholesaler
+●	Staff can log in securely to access the system
+●	Staff can view all customer orders in one central dashboard
+●	Staff can update product stock levels easily
+●	Customer details are kept secure, with access limited to staff only
+
+Nice-to-Have Features (Future Development)
+●	Advanced business reports (e.g., sales trends, customer behaviour)
+●	Automated stock alerts when inventory runs low
+●	Marketing tools (promotions, newsletters, loyalty programs)
+●	Multi-channel notifications (e.g., SMS, email beyond order confirmation)
+●	Integration with payment gateways for real transactions
+ 
+
+6. Background & Literature Review
+Small retail and service businesses often rely on digital order-booking systems to manage sales, stock, and customer communication. Studying similar systems helps identify what works well and what problems still exist, so the new design can improve on them
+Small retail and service businesses often rely on digital order-booking systems to manage sales, stock, and customer communication. Studying similar systems helps identify what works well and what problems still exist, so the new design can improve on them.
+6.1 Existing Order and Booking Systems
+Several common solutions are used by small businesses today:
+●	E-commerce platforms such as Shopify and WooCommerce allow product listings, online ordering, and payment handling through a web interface.
+●	Marketplace apps like Etsy or Instagram Shops let sellers reach large audiences but give limited control over features and data.
+●	Custom web systems built with tools like PHP + MSSQL or WordPress plugins are flexible but often require technical knowledge to set up and maintain.
+6.2 Strengths of Existing Approaches
+●	Automation: These platforms reduce manual work by generating order records and confirmations automatically.
+●	Accessibility: They run in a browser or mobile app, so customers can order anytime.
+●	Integration: Many include built-in payment and delivery options, giving a full shopping experience.
+●	User Interface: Most have simple, guided order flows that are easy for customers to understand.
+
+6.3 Weaknesses and Gaps
+●	Limited Customisation: Ready-made platforms rarely match a small business’s exact workflow, such as communicating with a specific wholesaler.
+●	High Cost or Fees: Subscription charges or sales commissions reduce profit for small sellers.
+●	Data Ownership: Some third-party platforms store data on external servers, meaning the business has less control over customer information.
+●	Complex Setup: Building or hosting a custom site can be difficult without technical help.
+●	Over-sized Features: Many commercial systems include advanced marketing or analytics tools that small businesses do not need at the start, making them harder to use.
+
+6.4 Technology Choices and Tools Used (Python, JavaScript, MSSQL): 
+6.4.1 Python (Backend Development) 
+Python was picked for the backend because it has clear, easy-to-read syntax and lots of libraries that speed up development.Python also works well with relational databases through ORMs, so data such as orders and customer details can be handled safely and efficiently. For this project, Python provides the core logic behind the system, such as handling logins, processing orders, and linking the frontend to the database.
+
+6.4.2 JavaScript (Frontend Development)
+JavaScript is the main language used for building interactive web pages and is supported by all modern browsers without the need for extra setup. It makes it possible to create responsive and user-friendly interfaces that react quickly to user input. In this project, JavaScript is used to give both customers and staff a smooth experience, whether they are browsing products, placing orders, or managing stock.
+
+
+6.4.3 MSSQL (Database)
+MSSQL was chosen as the database because it is secure, reliable, and commonly used in real-world systems. It supports ACID transactions, which means customer orders and stock changes are stored correctly and consistently. It also has good security features and can handle growth if the business expands. Another advantage is that it connects well with Python through existing libraries, making development easier. Compared to lighter options like MSSQL is better for a web system where more than one user might be accessing it at the same time.
+ACID
+A = Atomicity → “All or nothing.”
+If a customer places an order, either all parts of it are saved (order + order items), or none are saved if something fails.
+C = Consistency → Data stays valid.
+If an item has 10 in stock and someone buys 2, the stock must update to 8, not 9 or 11.
+I = Isolation → One person’s order doesn’t mess with another person’s order, even if they happen at the same time
+D = Durability → Once data is saved, it’s safe, even if the system crashes right after.
+●	Development approach (waterfall & agile mini-iterations): This project will follow a Waterfall structure because the requirements are clear from the business interviews and the fixed deadline requires a structured schedule. However, small Agile-style mini-iterations will be used within the Implementation stage to allow incremental testing and feedback (e.g. customer ordering first). This hybrid approach ensures structure while keeping flexibility . Safe agile Framework= Agile Waterfall approach
+
+6.4.4 Tools Used
+The development environment for this project consists of:
+- Microsoft SQL Server 2022 Express Edition
+- SQL Server Management Studio 19
+- Python 3.11.8 with Flask framework
+- Visual Studio Code with essential extensions
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+7. System Design
+7.1 UML Diagrams
+7.1.1 Use Case Diagram
+ 
+The Use Case Diagram shows how different users interact with the system and clearly defines what sits inside (and outside) the system boundary.
+The main purpose of this diagram was to:
+●	Define the system boundaries
+●	Identify the core functional requirements
+●	Clearly separate user roles (Customer, Staff, and Admin)
+For this project, the actors were:
+●	Customer – registers, logs in, browses the catalogue, places orders, and tracks their order status
+●	Staff – updates inventory and manages incoming orders
+●	Admin – manages users and generates reports
+Creating this diagram early on helped me validate that every necessary interaction was accounted for before development started. It gave me clarity, reduced the risk of missing functionality, and ensured the system logic made sense before moving into implementation.
+7.1.2 Sequence Diagram
+ 
+The Sequence Diagram models the time-based interactions between different system components. Instead of focusing on structure, it shows how processes unfold step by step.
+The purpose of this diagram was to:
+●	Visualise frontend–backend communication
+●	Model API calls clearly
+●	Define the sequence of database interactions
+In this project, the diagram illustrates the full request flow:
+●	The Customer submits an order through the Java frontend
+●	The backend (Python API) validates the request
+●	The database stores the order
+An inventory transaction is created
+●	A confirmation response is returned to the user
+
+Mapping this sequence helped me think through the system logically before integrating everything. It ensured that each layer, frontend, backend, and database communicated correctly and in the right order.
+Rather than guessing how components should interact, this diagram supported intentional full-stack integration design and reduced integration errors during implementation.
+
+7.1.3 Class Diagram
+ 
+The Class Diagram models the static structure of the system. It represents how the core components are organised and how they relate to one another behind the scenes.
+The purpose of this diagram was to:
+●	Define the main entities and their relationships
+●	Translate the database structure into an object-oriented format
+●	Support the backend implementation in Python
+In this project, the key classes identified were:
+●	User
+●	Product
+●	Order
+●	OrderItem
+●	InventoryTransaction
+Relationships such as one-to-many (e.g., one User to many Orders) were defined at this stage before implementing the database. This ensured the schema remained normalised, logically structured, and aligned with object-oriented principles.
+Creating this diagram early allowed me to think through the architecture properly rather than just “coding and hoping.” It strengthened the backend design and reduced structural issues later in development.
+
+
+
+7.2 Screen Flow 
+7.2.1 Catalogue page (Customer)
+ 
+The Catalogue Page serves as the main product discovery interface within the system. It is designed to present available products in a clear and structured way, making browsing straightforward and efficient.
+The purpose of this page was to:
+●	Display products in a grid format for easy comparison
+●	Enable filtering and search functionality
+●	Improve overall user experience
+The design prioritises clarity, strong product visibility, and intuitive navigation. The grid layout allows users to quickly scan multiple products at once, while filtering and search features reduce friction in the browsing process.
+Rather than overwhelming the user with information, the layout focuses on simplicity and usability, ensuring that users can find what they need quickly and move seamlessly toward placing an order.
+
+
+7.2.2 Checkout page (Customer)
+ 
+The Checkout Page functions as the final step in the purchasing process, where users confirm their order and complete the transaction.
+The purpose of this page was to:
+●	Capture delivery details accurately
+●	Present a clear order summary for review
+●	Simulate payment confirmation
+The layout was intentionally structured to reduce user friction and minimise input errors. Delivery fields are clearly labelled, the order summary provides transparency before confirmation, and the payment simulation ensures the transaction flow feels realistic and complete.
+Rather than overwhelming the user at the final stage, the design focuses on clarity, logical progression, and validation. This helps prevent mistakes, builds user confidence, and ensures a smooth transition from selection to confirmation.
+
+
+
+
+
+
+
+
+
+
+
+7.2.3 Staff pages (Login, Dashboard)
+  
+  
+  
+
+
+
+The Staff Interface includes a secure login page and an operational dashboard designed to support day-to-day management tasks.
+The login page ensures that only authorised staff members can access internal system functionality, maintaining data security and role-based access control.
+Once authenticated, staff are directed to the dashboard, which provides a structured overview of operational data. Clear visual indicators such as IN STOCK and OUT OF STOCK statuses allow staff to immediately identify inventory issues without needing to dig through records.
+The purpose of this interface is to:
+●	Monitor incoming and processed orders
+●	Adjust inventory levels when required
+●	View sales summaries to track performance
+The dashboard was designed for clarity and speed. Key information is surfaced prominently so staff can make quick, informed decisions. By reducing unnecessary navigation and highlighting critical data points, the interface supports operational efficiency and effective decision-making.
+Rather than functioning as just an admin panel, this area of the system acts as the operational control centre - ensuring inventory accuracy, order flow consistency, and overall business visibility.
+
+
+
+7.3 Database Schema
+7.3.1. Users
+Stores user account information and authentication data.
+Column	Type	Purpose
+UserID	INT PK	Auto-increment primary key
+Username	NVARCHAR(50)	Unique login identifier
+PasswordHash	NVARCHAR(255)	SHA2_512 hash (128 chars)
+PasswordSalt	NVARCHAR(255)	Unique random salt
+Email	NVARCHAR(255)	Unique contact
+Role	NVARCHAR(20)	RBAC: Admin/Manager/Staff
+IsActive	BIT	Soft delete flag
+
+7.3.2. Products
+Product catalog with pricing and stock thresholds.
+Column	Type	Constraint
+ProductID	INT PK	Auto-increment
+ProductCode	NVARCHAR(20)	UNIQUE
+ProductName	NVARCHAR(200)	NOT NULL
+UnitPrice	DECIMAL(10,2)	CHECK > 0
+CostPrice	DECIMAL(10,2)	CHECK > 0
+MinimumStockLevel	INT	Reorder threshold
+ReorderLevel	INT	CHECK > MinimumStock
+7.3.3. Inventory Table (Stock Tracking)
+Current stock levels for each product.
+Column	Type	Description
+InventoryID	INT PK	Auto-increment
+ProductID	INT FK	References Products
+QuantityInStock	INT	Physical stock
+QuantityReserved	INT	Allocated for orders
+QuantityAvailable	INT COMPUTED	InStock - Reserved
+LastUpdatedBy	INT FK	Audit trail to Users
+
+7.3.4. Suppliers
+Supplier contact and performance information.
+Column	Type	Description
+SupplierID	INT (PK)	Primary key, auto-increment
+SupplierCode	NVARCHAR(20)	Unique supplier code
+SupplierName	NVARCHAR(200)	Company name
+ContactName	NVARCHAR(200)	Contact person
+Email	NVARCHAR(255)	Email address
+Phone	NVARCHAR(50)	Phone number
+Address	NVARCHAR(500)	Street address
+City	NVARCHAR(100)	City
+PostalCode	NVARCHAR(20)	Postal/ZIP code
+Country	NVARCHAR(100)	Country
+PaymentTerms	NVARCHAR(100)	Payment terms
+Rating	DECIMAL(3,2)	Supplier rating (0-5)
+IsActive	BIT	Supplier status
+
+
+
+
+
+
+
+
+7.3.5. Inward and Outward Transactions
+Records of stock received and dispatched.
+Column	Type	Purpose
+InwardID/OutwardID	INT PK	Unique transaction
+TransactionNumber	NVARCHAR(50)	Business reference
+ProductID	INT FK	Item moved
+Quantity	INT	Amount (CHECK > 0)
+UnitCost/UnitPrice	DECIMAL(10,2)	Cost tracking
+TotalCost/TotalPrice	DECIMAL COMPUTED	Auto-calculated
+Status	NVARCHAR(20)	Workflow state
+TransactionDate	DATETIME2	Timestamp
+ReceivedBy/DispatchedBy	INT FK	Accountability
+7.3.6. Purchase Orders and Detailed Purchase Orders
+Purchase order headers.
+Column	Type	Description
+Header (PurchaseOrders)	Type	Description
+OrderID	INT PK	Unique order
+OrderNumber	NVARCHAR(50)	Business reference
+SupplierID	INT FK	Vendor
+TotalAmount	DECIMAL(12,2)	Order total
+Status	NVARCHAR(20)	Workflow state
+Detail (PurchaseOrderDetails)	Type	Description
+OrderDetailID	INT PK	Line item
+OrderID	INT FK	Parent order
+ProductID	INT FK	Item ordered
+Quantity	INT	Quantity
+UnitPrice	DECIMAL(10,2)	Price per unit
+TotalPrice	DECIMAL COMPUTED	Line total
+
+7.3.7.  AuditLog
+Complete audit trail of all changes.
+Column	Type	Purpose
+AuditID	INT PK	Auto-increment
+TableName	NVARCHAR(100)	Entity audited
+RecordID	INT	Specific row
+Action	NVARCHAR(20)	INSERT/UPDATE/DELETE
+FieldName	NVARCHAR(100)	Changed column
+OldValue	NVARCHAR(MAX)	Previous state
+NewValue	NVARCHAR(MAX)	New state
+ChangedBy	INT FK	User responsible
+ChangedDate	DATETIME2	Timestamp
+IPAddress	NVARCHAR(50)	Client location
+
+7.3.8. Notifications
+System notifications and alerts.
+Column	Type	Description
+Column	Type	Description
+NotificationID	INT PK	Auto-increment
+UserID	INT FK NULL	Target user (NULL = all)
+NotificationType	NVARCHAR(50)	Category
+Title	NVARCHAR(200)	Subject line
+Message	NVARCHAR(MAX)	Body content
+IsRead	BIT	Read status
+Priority	NVARCHAR(20)	Urgency level
+RelatedEntityID	INT	Related entity ID
+CreatedDate	DATETIME2	Creation timestamp
+ReadDate	DATETIME2	Read timestamp
+
+7.3.9.UserSessions
+Active user sessions for authentication.
+Column	Type	Description
+Column	Type	Purpose
+SessionID	INT PK	Auto-increment
+UserID	INT FK	Session owner
+SessionToken	NVARCHAR(255)	Unique token (GUID)
+IPAddress	NVARCHAR(50)	Client IP
+UserAgent	NVARCHAR(500)	Browser info
+LoginDate	DATETIME2	Session start
+LastActivityDate	DATETIME2	Keepalive
+LogoutDate	DATETIME2	Session end
+IsActive	BIT	Active flag
+
+7.3.10. StockAdjustments Table (Inventory Corrections)
+
+Column	Type	Purpose
+AdjustmentID	INT PK	Unique adjustment
+ProductID	INT FK	Item adjusted
+AdjustmentType	NVARCHAR(50)	Reason category
+QuantityBefore	INT	Previous stock
+QuantityAfter	INT	New stock
+QuantityChanged	INT	Delta (+/-)
+Reason	NVARCHAR(500)	Explanation
+AdjustedBy	INT FK	Responsible user
+AdjustedDate	DATETIME2	Timestamp
+7.4 Referential Integrity Analysis
+7.4.1 Foreign Key Relationships
+Child Table	Parent Table	Relationship
+Inventory	Products	Many-to-One
+Inventory	Users	Many-to-One (LastUpdatedBy)
+InwardTransactions	Products	Many-to-One
+InwardTransactions	Suppliers	Many-to-One
+InwardTransactions	Users	Many-to-One (ReceivedBy)
+OutwardTransactions	Products	Many-to-One
+OutwardTransactions	Users	Many-to-One (DispatchedBy)
+PurchaseOrders	Suppliers	Many-to-One
+PurchaseOrderDetails	PurchaseOrders	Many-to-One
+PurchaseOrderDetails	Products	Many-to-One
+AuditLog	Users	Many-to-One (ChangedBy)
+UserSessions	Users	Many-to-One
+
+
+8. Testing
+This test strategy defines the structured approach used to validate that the Digital Order Booking System meets the functional, non-functional, security, and business requirements identified during the requirements gathering phase with the Mides Collection business owner.
+ 8.1 Test Objectives
+Aligned to the stated project objectives, testing must confirm that:
+•	Customers can browse products, place orders, and receive instant confirmations
+•	Orders are automatically routed to staff and the wholesaler
+•	Staff can log in securely, manage orders, and update inventory
+•	Customer data is protected using SHA2_512 password hashing and role-based access
+•	The database maintains ACID compliance, referential integrity, and accurate stock levels
+•	The system performs reliably under normal and edge-case conditions
+8.2 Test Scope
+8.2.1 In Scope
+•	All 7 functional MVP requirements (product browsing, order placement, confirmation, staff dashboard, inventory update, secure login, wholesaler notification)
+•	All 5 non-functional requirements (usability, security, reliability, performance, scalability)
+•	Full MidesInventory database — 12 tables, 8 stored procedures, 5 views, triggers, constraints
+•	Three-tier integration: JavaScript frontend → Python API → MSSQL database
+•	Security: SHA2_512 password hashing, session tokens, audit logging, RBAC
+8.2.2 Out of Scope
+•	Real payment gateway processing (simulated only, per project scope)
+•	Advanced marketing or CRM tools (future development phase)
+•	Third-party wholesaler API integration (notification only, not full integration)
+8.2.3 Test Levels & Approach
+The project follows a Hybrid Waterfall-Agile methodology, so testing is structured sequentially but with iterative verification within each phase.
+8.3 Unit Testing
+Tests individual functions and modules in isolation.
+Component	Tool	What Is Tested
+Python backend functions	pytest	Order processing logic, input validation, login handler
+JavaScript UI components	Jest	Product search filter, cart total calculation, form validation
+MSSQL stored procedures	MSSQL Studio	sp_UserLogin, sp_AddInwardTransaction, sp_AddOutwardTransaction 
+Database constraints	T-SQL debugger	CHECK constraints, UNIQUE constraints, NOT NULL rules
+
+8.4 Integration Testing
+Tests communication across system layers: frontend ↔ Python API ↔ MSSQL.
+Key Integration Flows to Test:
+•	Customer Order Flow: JS checkout form → POST /api/orders → Python validates → MSSQL OutwardTransactions + Inventory updated
+•	Staff Login Flow: JS login form → POST /api/login → sp_UserLogin → SHA2_512 hash verified → session token returned → UserSessions created
+•	Purchase Order Workflow: Staff creates PO → sp_CreatePurchaseOrder → PurchaseOrders + PurchaseOrderDetails created → sp_ReceivePurchaseOrder → stock incremented
+•	Inventory Update: Inward/outward transaction → trg_AuditInventory fires → AuditLog entry created
+•	Notification Flow: Order placed → Notifications table populated → staff dashboard updated
+8.5 System (Functional) Testing
+Full end-to-end tests against each MVP requirement using the test case table below.
+Functional Test Cases
+Test ID	Requirement	Test Description	Input	Expected Result	Pass Criteria
+FT-01	Product Browsing	Customer searches "wig"	Search term: "wig"	Matching products displayed in grid	≥1 result returned
+FT-02	Product Browsing	Customer filters by category	Category: "Extensions"	Only extensions shown	Correct filter applied
+FT-03	Order Placement	Customer places valid order	ProductID, Qty=2, delivery address	Order saved, confirmation shown	OutwardTransactions record created
+FT-04	Order Confirmation	System sends confirmation	Valid order placed	Notification created for customer	Notifications table entry present
+FT-05	Stock Update	Order placed, stock decremented	Qty=2 ordered; stock was 10	Stock becomes 8	QuantityInStock = 8 in Inventory
+FT-06	Staff Login	Staff logs in with valid credentials	Username: admin, Password: Admin@2024!	Dashboard loads; session token issued	UserSessions.IsActive = 1
+FT-07	Staff Login Rejection	Invalid password attempt	Correct username, wrong password	Login rejected	sp_UserLogin returns Success=0 
+FT-08	Staff Dashboard	View all orders	Staff logged in	All orders visible in dashboard	OutwardTransactions table queried
+FT-09	Inventory Management	Staff updates stock level	InventoryID, new Qty	Stock updated, audit logged	AuditLog entry created 
+FT-10	Order to Wholesaler	New customer order	Valid order	Wholesaler notification triggered	Notifications record with correct type
+FT-11	Order Tracking	Customer tracks order status	OrderID	Status displayed (Pending/Processing/Complete)	Correct status from OutwardTransactions.Status
+FT-12	Oversell Prevention	Dispatch more than available stock	Qty = AvailableStock + 100	Order rejected	sp_AddOutwardTransaction returns Success=0 
+8.6 Database Validation Testing
+Directly maps to the automated test suite in MidesInventory.
+8.6.1 Database Test Categories
+Category	No. of Tests	Key Validations
+Structure	5	All 12 tables exist; ≥30 indexes; ≥20 FK constraints; ≥15 CHECK constraints
+Data Integrity	6	No negative stock; no orphaned products; unique product codes; computed columns accurate
+Stored Procedures	4	All 8 procedures exist and execute correctly
+Views	4	All 5 views return valid data (vw_DashboardSummary, vw_LowStockAlerts, etc.)
+Triggers	3	trg_PreventNegativeStock fires; trg_AuditInventory logs changes
+Security	8	SHA2_512 hash format (128 chars); unique salts; no plaintext passwords; session token uniqueness
+Business Logic	4	Reorder level > minimum stock; selling price > cost; no future dates; order totals match details
+Integration	1	End-to-end purchase order workflow
+Edge Cases	2	Large quantity (10,000 units); zero quantity rejection
+Performance	3	FK indexes present; no heavily fragmented tables; statistics current
+TOTAL	40	Target: ≥95% pass rate
+8.7 Security Testing
+Derived from the business owner's stated requirement: "I want my customers' details kept safe and passwords should remain secure".
+Test ID	Security Test	Method	Expected Result
+ST-01	Password hashing format	Query LEN(PasswordHash)	= 128 (SHA2_512 hex)
+ST-02	Unique password salts	Query COUNT(DISTINCT PasswordSalt)	No duplicates
+ST-03	No plaintext passwords	Inspect Users table	No readable passwords stored
+ST-04	Correct password accepted	Call sp_UserLogin with valid credentials	Success=1, session token returned
+ST-05	Wrong password rejected	Call sp_UserLogin with wrong password	Success=0
+ST-06	Session token uniqueness	Query UserSessions	All active tokens distinct
+ST-07	Inactive user blocked	Deactivate user; attempt login	Session creation denied
+ST-08	Role-based access	Log in as Customer; attempt staff route	HTTP 403 / access denied
+ST-09	SQL injection prevention	Input ' OR '1'='1 in login form	Query fails safely; no data returned
+ST-10	Audit trail completeness	Make any data change	AuditLog records user, timestamp, old/new values
+
+8.8 Non-Functional Testing
+Requirement	Test Method	Acceptance Criterion
+Usability	Business owner UAT with task completion checklist	Owner rates system ≥4/5 stars 
+Performance	Browser DevTools; page load timing	Product catalogue loads in <2 seconds
+Reliability	Place 10 consecutive orders; check all recorded	0 orders lost; all in OutwardTransactions
+Scalability	Simulate 50 concurrent product searches	No timeout errors; all results returned
+Accessibility	Mobile browser test (Chrome/Safari on phone)	All pages usable on mobile; no horizontal scroll
+Browser Compatibility	Test on Chrome, Firefox, Edge	Consistent layout and function across all three
+
+8.8 User Acceptance Testing (UAT)
+The business owner (Mides Collection) acts as the primary UAT tester, consistent with the interview-based requirements process.
+8.8.1 UAT Participants:
+•	Business owner (primary tester — customer and staff roles)
+•	One simulated customer (external perspective)
+8.8.2 UAT Scenarios:
+1.	Customer Journey: Browse catalogue → find a wig → add to cart → complete checkout → receive confirmation
+2.	Staff Journey: Log in → view new order on dashboard → update inventory → mark order as processed
+3.	Stock Management: Identify out-of-stock product on dashboard (IN STOCK / OUT OF STOCK indicator) → update quantity → verify change reflected
+4.	Wholesaler Notification: Place customer order → verify notification created for wholesaler route
+8.8.3 UAT Feedback Form 
+Task	Completed? (Y/N)	Ease Rating (1–5)	Comments
+Place a product order			
+View order confirmation			
+Log in as staff			
+Update stock level			
+View order dashboard			
+
+8.8.4 Test Data Strategy
+Data Set	Purpose	Source
+Valid product data	Happy-path functional tests	Pre-populated Products + Inventory tables
+Admin user account	Login tests (correct/wrong password)	Users table: admin / Admin@2024!
+Active supplier	Purchase order workflow	Suppliers table with IsActive=1
+Zero-stock product	Oversell prevention test	Inventory record with QuantityAvailable=0
+Invalid inputs	Boundary and SQL injection tests	Manually constructed test inputs
+Large quantity (10,000)	Edge case stress test	Passed as parameter to sp_AddInwardTransaction 
+
+8.8.5 Pass/Fail Criteria
+Level	Criterion	Implication
+PASS	All MVP functional tests pass; database test pass rate ≥95%; all security tests pass; UAT owner rating ≥4/5	System is fit for purpose and production-ready
+CONDITIONAL PASS	1–2 non-critical failures; all security and data integrity tests pass	Document failures; recommend fixes before live deployment
+FAIL	Any security test fails; data loss observed; login bypass possible; negative stock recorded	Do not deploy; fix and retest immediately
+
+8.9 Defect Management
+Defects identified during testing are logged with the following attributes:
+•	Defect ID (e.g., DEF-001)
+•	Test phase where found (Unit / Integration / System / UAT)
+•	Severity: Critical / Major / Minor
+•	Description of actual vs expected behaviour
+•	Resolution action taken
+•	Retest result (Pass / Fail)
+
+8.10 Traceability Matrix
+Requirement	Test IDs
+Customers can browse products	FT-01, FT-02
+Customers can place orders online	FT-03, FT-05, FT-12
+Customers receive confirmation	FT-04, FT-11
+Orders route to staff and wholesaler	FT-08, FT-10
+Secure staff login	FT-06, FT-07, ST-04, ST-05, ST-07, ST-08
+Inventory accurately updated	FT-05, FT-09, DB Integrity × 6
+Customer data protected	ST-01 to ST-10
+System is usable	UAT Tasks 1–5
+System is reliable	Reliability NFT, DB Integration test
+ACID compliance	DB Structure tests, Integration workflow
+
+
+
+8.11 SQL Authentication Testing
+8.11.1 Security Implementation
+Password Security
+The system implements industry-standard password security using SHA2_512 hashing combined with unique salts for each user. This approach ensures that even if the database is compromised, passwords cannot be reversed or used in rainbow table attacks.
+Session Management
+User sessions are managed through cryptographically secure tokens with automatic 24-hour expiry. The sp_ValidateSession procedure ensures all protected endpoints verify session validity before allowing access.
+Brute Force Protection
+The system protects against brute force attacks by implementing a failed login attempt counter. After 5 failed attempts within 15 minutes, the account is temporarily locked, preventing automated password guessing.
+Audit Trail
+All authentication events are logged in the AuditLog table, providing a complete history of user activity for security monitoring and compliance.
+
+8.11.2 .SQL Testing Scenarios 
+TEST 1: Successful Login
+EXEC sp_UserLogin
+@Username = &#39;testuser&#39;,
+@Password = &#39;SecurePass123&#39;,
+@IPAddress = &#39;192.168.1.100&#39;;
+-- TEST 2: Invalid Password
+EXEC sp_UserLogin
+@Username = &#39;testuser&#39;,
+@Password = &#39;WrongPassword&#39;,
+
+@IPAddress = &#39;192.168.1.100&#39;;
+-- TEST 3: Account Lockout (Run 5 times)
+-- Should lock after 5th attempt
+-- TEST 4: Session Validation
+EXEC sp_ValidateSession
+@SessionToken = &#39;your_session_token_here&#39;;
+-- TEST 5: Logout
+EXEC sp_UserLogout
+@SessionToken = &#39;your_session_token_here&#39;;
+-- TEST 6: Cleanup
+EXEC sp_CleanupExpiredSessions;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+9. Implementation 
+The implementation of the Digital Order Booking System transformed earlier analysis and design decisions into a functional three-tier architecture consisting of a JavaScript presentation layer, a Python application layer, and a Microsoft SQL Server data layer. Structuring the system ensured clear separation between user interaction, business logic, and data management. This modularity reduced tight coupling and supports future scalability without requiring structural redesign.
+All critical operations, including authentication, order processing, and inventory updates, were enforced at backend and database level rather than client-side. This decision strengthened system integrity by preventing manipulation through the interface. Order placement was implemented using transactional stored procedures to ensure atomicity. Stock deductions and order creation occur within a single ACID-compliant transaction, preventing partial failures from compromising data consistency.
+Referential integrity was maintained through primary and foreign key constraints across entities such as Users, Orders, Products, and Inventory. The schema reflects Third Normal Form principles, reducing redundancy and improving consistency. Security controls included salted SHA2_512 password hashing, failed login tracking, account lockout mechanisms, session token generation, and expiry validation. Error handling was designed so detailed failures are logged internally while generic responses are returned to users, reducing the risk of information disclosure.
+Performance optimisation included indexed keys, computed stock fields, and carefully scoped transactions to minimise locking duration. This makes the system appropriate for small-to-medium transaction volumes within the intended business context.
+As a Level 5 student, translating theory into a fully functioning implementation presented challenges. Maintaining schema consistency while refining stored procedures required iterative testing and frequent refactoring. Balancing academic expectations with practical development constraints also required disciplined time management and independent problem-solving. There were moments where aligning database normalisation theory with real-world usability considerations felt complex, particularly when evolving requirements required structural adjustments. However, these challenges strengthened my understanding of applied database design beyond theoretical models.
+While the system satisfies both functional and non-functional requirements identified earlier, it remains extensible. Future enhancements could include payment gateway integration, cloud deployment, or adoption of adaptive hashing algorithms to further strengthen enterprise-level security.
+Overall, the implementation demonstrates applied database theory, secure coding practice, and structured system development aligned with BCS Level 5 expectations, while also reflecting the learning curve involved in progressing from academic concepts to production-style thinking.
+
+
+
+
+
+
+10. Legal, Ethical, Social, and Professional (LESP) Issues
+10.1 Legal
+The system stores customer names, contact details, and order history, so data protection laws (such as GDPR in the UK/EU) is considered. Personal data will be stored securely in the database, with limited staff access. Passwords will be encrypted, and sensitive information will not be shared outside the business. Since no real payment system is implemented, financial regulations are not a priority, but still respect data confidentiality.
+10.2 Ethical
+Ethically, the system will be designed to serve customers fairly. For example, confirmations should be accurate, and order records should not be changed without reason. The interface should be clear, avoiding misleading information. Transparency in how customer data is used (only for order processing, not for marketing unless consent is given) is also an ethical concern.
+10.3 Social
+Socially, the system helps the business run more smoothly and improves customer experience by reducing delays and errors. However, some customers may not have regular internet access, so the business should still allow for alternative ordering methods. Accessibility features such as clear text, mobile compatibility, and simple navigation will ensure the system can be used by a wider audience.
+10.4 Professional
+As a future IT professional, I must follow the BCS Code of Conduct. This means being honest in reporting results, respecting confidentiality, and maintaining high standards of testing and documentation. Professional practice also involves considering system security from the beginning, not as an afterthought.
+
+
+
+
+
+
+
+
+
+
+
+
+
+11. Evaluation 
+The project focused on designing and implementing a secure, scalable, and user-friendly digital order booking system for a hair and accessories business, addressing order inaccuracies, inconsistent stock tracking, and limited operational visibility.
+All primary objectives were achieved. A web-based ordering system allows customers to browse products, place orders, and receive confirmations using a Java frontend integrated with a Python backend and MSSQL database. Referential integrity constraints maintain transactional consistency. Inventory management was automated through structured inward and outward transaction procedures, with stock threshold alerts reducing manual oversight.
+Secure role-based access control was implemented using salted SHA2-512 hashing, session tokens, expiry controls, and lockout protection. The security model is appropriate for small-scale deployment, though multi-factor authentication would strengthen resilience. Operational traceability was implemented through structured logging; however, graphical dashboards and KPI-based reporting were not developed, limiting analytical depth.
+Testing covered unit, integration, user acceptance, and negative scenarios. All critical cases—including invalid logins, lockout enforcement, insufficient stock handling, duplicate account prevention, and purchase order processing—passed successfully. No critical defects remained at completion, although performance and stress testing were not conducted.
+Key strengths include 3NF database normalisation, ACID-compliant transactions, audit logging, brute-force protection, and modular architecture. Limitations include no payment gateway integration, limited analytics capability, lack of replication, and no horizontal scaling. The system supports vertical optimisation and future cloud deployment. GDPR-aligned security practices were implemented, with scope for enhanced data governance controls.
+
+12. Conclusion
+This project successfully demonstrates applied systems analysis, relational database design, security implementation, and full-stack integration within a real-world commercial scenario.
+The developed solution addresses previously identified operational inefficiencies, including manual order tracking, inconsistent stock updates, and fragmented communication workflows.
+Technically, the system exceeds minimum Level 5 expectations through the implementation of:
+•	ACID-compliant transactional procedures
+•	Salted password hashing
+•	Account lockout protection
+•	Audit logging
+•	Structured inventory lifecycle management
+Although advanced analytics and payment gateway integration were outside scope, the system architecture supports future expansion.
+Overall, this project reflects not only technical competence but structured analytical thinking, secure system design, and professional software engineering practice consistent with BCS Level 5 standards.
+
+13. Appendices
+Appendix A - Interview notes
+ 
+
+Appendix B – Technology Stack
+Technology Stack
+Layer	Technology	Purpose
+Presentation	JavaScript (Frontend)	User interface, DOM manipulation
+Application	Python (Backend)	Business logic, API routes
+Data	MSSQL (Database)	Persistent storage, ACID transactions
+
+
+Backend (Python)
+USE MidesInventory;
+GO
+SET NOCOUNT ON;
+GO
+--------------------------------------------------
+-- USERS (via sp_CreateUser – hashed passwords)
+--------------------------------------------------
+PRINT 'Creating users with secure password hashing...';
+EXEC sp_CreateUser 'admin',     'Admin@2024!',   'System', 'Administrator', 'admin@midescollection.com',    'Admin';
+EXEC sp_CreateUser 'jsmith',    'Manager@2024!', 'John',   'Smith',         'john.smith@midescollection.com','Manager';
+EXEC sp_CreateUser 'staff',     'Staff@2024!',   'Jane',   'Doe',           'jane.doe@midescollection.com', 'Staff';
+EXEC sp_CreateUser 'mwilliams', 'Staff@2024!',   'Michael','Williams',      'michael.williams@midescollection.com','Staff';
+GO
+--------------------------------------------------
+-- SUPPLIERS
+--------------------------------------------------
+INSERT INTO Suppliers (
+    SupplierCode, SupplierName, ContactName, Email, Phone,
+    Address, City, PostalCode, Country,
+    PaymentTerms, Rating, CreatedBy
+)
+VALUES
+    ('SUP001', 'Premium Hair Ltd',         'Sarah Johnson', 'sarah@premiumhair.com',          '+44 20 7123 4567',
+     '123 Hair Street',    'London',     'EC1A 1BB', 'United Kingdom', 'Net 30', 4.5, 1),
+    ('SUP002', 'Hair World Suppliers',     'David Chen',    'david@hairworld.com',            '+44 161 234 5678',
+     '456 Extension Ave',  'Manchester', 'M1 1AA',  'United Kingdom', 'Net 45', 4.0, 1),
+    ('SUP003', 'Extensions International', 'Maria Garcia',  'maria@extensions-int.com',       '+44 121 345 6789',
+     '789 Beauty Road',    'Birmingham', 'B1 1BB',  'United Kingdom', 'Net 30', 4.8, 1),
+    ('SUP004', 'Quality Wigs Co',          'James Brown',   'james@qualitywigs.co.uk',        '+44 113 456 7890',
+     '321 Wig Lane',       'Leeds',      'LS1 1AA', 'United Kingdom', 'COD',   3.5, 1);
+--------------------------------------------------
+-- PRODUCTS
+--------------------------------------------------
+INSERT INTO Products (
+    ProductCode, ProductName, Description, Category,
+    UnitPrice, CostPrice, MinimumStockLevel, ReorderLevel, CreatedBy
+)
+VALUES
+    ('ARIEL-001',    'Ariel',            'Premium auburn wavy wig - high quality synthetic fiber',      'Wigs',       250.00, 150.00, 10, 20, 1),
+    ('BODY-001',     'Body Wave',       'Body wave hair extension bundles - 100% human hair',          'Extensions',  40.00,  25.00, 20, 40, 1),
+    ('MAINT-001',    'Maintenance Kit', 'Hair maintenance kit - shampoo, conditioner, styling',        'Maintenance', 20.00,  12.00, 15, 30, 1),
+    ('LEXY-001',     'Lexy',            'Brown wavy wig - natural looking premium quality',            'Wigs',       220.00, 130.00, 10, 20, 1),
+    ('CURLY-001',    'Curly Delight',   'Tight curl pattern hair extensions - premium grade',          'Extensions',  45.00,  28.00, 15, 30, 1),
+    ('STRAIGHT-001', 'Silky Straight',  'Bone straight hair extensions - ultra smooth',                 'Extensions',  38.00,  23.00, 18, 35, 1);
+--------------------------------------------------
+-- INVENTORY
+--------------------------------------------------
+INSERT INTO Inventory (ProductID, QuantityInStock, QuantityReserved, Location, LastUpdatedBy)
+VALUES
+    (1, 45,  2, 'Main Warehouse', 1),
+    (2, 120, 5, 'Main Warehouse', 1),
+    (3, 8,   0, 'Main Warehouse', 1), -- low stock
+    (4, 32,  1, 'Main Warehouse', 1),
+    (5, 28,  0, 'Main Warehouse', 1),
+    (6, 55,  3, 'Main Warehouse', 1);
+--------------------------------------------------
+-- INWARD TRANSACTIONS (last 30 days)
+--------------------------------------------------
+INSERT INTO InwardTransactions (
+    TransactionNumber, ProductID, SupplierID,
+    Quantity, UnitCost, ReferenceNumber,
+    TransactionDate, ReceivedBy, Status
+)
+VALUES
+    ('INW-20260201-001', 1, 1, 20, 150.00, 'PO-001', DATEADD(DAY, -15, GETDATE()), 1, 'Approved'),
+    ('INW-20260204-002', 2, 2, 50,  25.00, 'PO-002', DATEADD(DAY, -12, GETDATE()), 3, 'Approved'),
+    ('INW-20260208-003', 4, 3, 15, 130.00, 'PO-003', DATEADD(DAY,  -8, GETDATE()), 3, 'Approved'),
+    ('INW-20260211-004', 5, 1, 30,  28.00, 'PO-004', DATEADD(DAY,  -5, GETDATE()), 1, 'Approved'),
+    ('INW-20260213-005', 2, 2, 30,  25.00, 'PO-005', DATEADD(DAY,  -3, GETDATE()), 3, 'Approved'),
+    ('INW-20260215-006', 6, 3, 25,  23.00, 'PO-006', DATEADD(DAY,  -1, GETDATE()), 1, 'Approved');
+
+--------------------------------------------------
+-- OUTWARD TRANSACTIONS (last 30 days)
+--------------------------------------------------
+INSERT INTO OutwardTransactions (
+    TransactionNumber, ProductID,
+    Quantity, UnitPrice, Reason,
+    CustomerName, ReferenceNumber,
+    TransactionDate, DispatchedBy, Status
+)
+VALUES
+    ('OUT-20260206-001', 1,  5, 250.00, 'Sale',   'Sarah Williams',   'ORD-1001',   DATEADD(DAY, -10, GETDATE()), 3, 'Approved'),
+    ('OUT-20260207-002', 2, 15,  40.00, 'Sale',   'Emma Brown',       'ORD-1002',   DATEADD(DAY,  -9, GETDATE()), 3, 'Approved'),
+    ('OUT-20260209-003', 3,  7,  20.00, 'Sale',   'Olivia Jones',     'ORD-1003',   DATEADD(DAY,  -7, GETDATE()), 4, 'Approved'),
+    ('OUT-20260210-004', 4,  3, 220.00, 'Sale',   'Sophia Davis',     'ORD-1004',   DATEADD(DAY,  -6, GETDATE()), 3, 'Approved'),
+    ('OUT-20260212-005', 2, 10,  40.00, 'Sale',   'Isabella Miller',  'ORD-1005',   DATEADD(DAY,  -4, GETDATE()), 4, 'Approved'),
+    ('OUT-20260213-006', 1,  2, 250.00, 'Sample', 'Marketing Dept',   'SAMPLE-001', DATEADD(DAY,  -3, GETDATE()), 1, 'Approved'),
+    ('OUT-20260214-007', 6,  5,  38.00, 'Sale',   'Mia Wilson',       'ORD-1006',   DATEADD(DAY,  -2, GETDATE()), 3, 'Approved'),
+    ('OUT-20260215-008', 2,  8,  40.00, 'Sale',   'Charlotte Moore',  'ORD-1007',   DATEADD(DAY,  -1, GETDATE()), 4, 'Approved');
+--------------------------------------------------
+-- PURCHASE ORDERS
+--------------------------------------------------
+INSERT INTO PurchaseOrders (
+    OrderNumber, SupplierID,
+    OrderDate, ExpectedDeliveryDate,
+    Status, TotalAmount,
+    CreatedBy, ApprovedBy, ApprovedDate
+)
+VALUES
+    ('PO-20260126-001', 1, DATEADD(DAY, -20, GETDATE()), DATEADD(DAY,  -5, GETDATE()), 'Received', 3000.00, 1, 2, DATEADD(DAY, -19, GETDATE())),
+    ('PO-20260131-002', 2, DATEADD(DAY, -15, GETDATE()), DATEADD(DAY,  -3, GETDATE()), 'Received', 1250.00, 3, 2, DATEADD(DAY, -14, GETDATE())),
+    ('PO-20260205-003', 3, DATEADD(DAY, -10, GETDATE()), DATEADD(DAY,   5, GETDATE()), 'Ordered',  1950.00, 1, 2, DATEADD(DAY,  -9, GETDATE())),
+    ('PO-20260210-004', 1, DATEADD(DAY,  -5, GETDATE()), DATEADD(DAY,  10, GETDATE()), 'Ordered',   840.00, 3, 2, DATEADD(DAY,  -4, GETDATE())),
+    ('PO-20260213-005', 2, DATEADD(DAY,  -2, GETDATE()), DATEADD(DAY,  13, GETDATE()), 'Pending',   750.00, 1, NULL, NULL);
+
+INSERT INTO PurchaseOrderDetails (OrderID, ProductID, Quantity, UnitPrice, QuantityReceived)
+VALUES
+    (1, 1, 20, 150.00, 20),
+    (2, 2, 50,  25.00, 50),
+    (3, 4, 15, 130.00,  0),
+    (4, 5, 30,  28.00,  0),
+    (5, 2, 30,  25.00,  0);
+
+--------------------------------------------------
+-- STOCK ADJUSTMENTS
+--------------------------------------------------
+INSERT INTO StockAdjustments (
+    AdjustmentNumber, ProductID, AdjustmentType,
+    QuantityBefore, QuantityChange, QuantityAfter,
+    Reason, AdjustmentDate, AdjustedBy, ApprovedBy
+)
+VALUES
+    ('ADJ-20260209-001', 3, 'Subtract', 10, -2,  8, 'Damaged during storage', DATEADD(DAY, -7, GETDATE()), 3, 2),
+    ('ADJ-20260212-002', 5, 'Add',      27,  1, 28, 'Found missing inventory', DATEADD(DAY, -4, GETDATE()), 4, 2);
+
+--------------------------------------------------
+-- NOTIFICATIONS
+--------------------------------------------------
+INSERT INTO Notifications (
+    UserID, NotificationType, Title, Message,
+    Priority, RelatedEntityType, RelatedEntityID
+)
+VALUES
+    (NULL, 'LowStock',    'Low Stock Alert', 'Maintenance Kit below minimum stock (8 units)', 'High',  'Product',        3),
+    (1,    'OrderPlaced', 'New Order',       'Purchase Order PO-20260213-005 has been created',       'Normal','PurchaseOrder', 5),
+    (2,    'System',      'System Maintenance','System maintenance scheduled for this weekend',        'Low',   NULL,           NULL);
+GO
+
+--------------------------------------------------
+-- SUMMARY
+--------------------------------------------------
+PRINT '';
+PRINT '========================================';
+PRINT 'DATA INSERTION COMPLETE';
+PRINT '========================================';
+PRINT '';
+
+SELECT 'Users'                  AS TableName, COUNT(*) AS RecordCount FROM Users
+UNION ALL SELECT 'Suppliers',          COUNT(*) FROM Suppliers
+UNION ALL SELECT 'Products',           COUNT(*) FROM Products
+UNION ALL SELECT 'Inventory',          COUNT(*) FROM Inventory
+UNION ALL SELECT 'InwardTransactions', COUNT(*) FROM InwardTransactions
+UNION ALL SELECT 'OutwardTransactions',COUNT(*) FROM OutwardTransactions
+UNION ALL SELECT 'PurchaseOrders',     COUNT(*) FROM PurchaseOrders
+UNION ALL SELECT 'PurchaseOrderDetails',COUNT(*) FROM PurchaseOrderDetails
+UNION ALL SELECT 'StockAdjustments',   COUNT(*) FROM StockAdjustments
+UNION ALL SELECT 'Notifications',      COUNT(*) FROM Notifications;
+
+PRINT '';
+PRINT 'Test Credentials:';
+PRINT '  Admin:   username: admin     password: Admin@2024!';
+PRINT '  Manager: username: jsmith    password: Manager@2024!';
+PRINT '  Staff:   username: staff     password: Staff@2024!';
+PRINT '  Staff:   username: mwilliams password: Staff@2024!';
+PRINT '';
+PRINT 'Database ready for testing and demonstration.';
+GO
+
+
+
+
+
+
+
+
+
+
+
+
+
+Frontend (JavaScript)
+USE MidesInventory;
+GO
+
+SET NOCOUNT ON;
+GO
+
+--------------------------------------------------
+-- USERS (via sp_CreateUser – hashed passwords)
+--------------------------------------------------
+PRINT 'Creating users with secure password hashing...';
+
+EXEC sp_CreateUser 'admin',     'Admin@2024!',   'System', 'Administrator', 'admin@midescollection.com',    'Admin';
+EXEC sp_CreateUser 'jsmith',    'Manager@2024!', 'John',   'Smith',         'john.smith@midescollection.com','Manager';
+EXEC sp_CreateUser 'staff',     'Staff@2024!',   'Jane',   'Doe',           'jane.doe@midescollection.com', 'Staff';
+EXEC sp_CreateUser 'mwilliams', 'Staff@2024!',   'Michael','Williams',      'michael.williams@midescollection.com','Staff';
+GO
+
+--------------------------------------------------
+-- SUPPLIERS
+--------------------------------------------------
+INSERT INTO Suppliers (
+    SupplierCode, SupplierName, ContactName, Email, Phone,
+    Address, City, PostalCode, Country,
+    PaymentTerms, Rating, CreatedBy
+)
+VALUES
+    ('SUP001', 'Premium Hair Ltd',         'Sarah Johnson', 'sarah@premiumhair.com',          '+44 20 7123 4567',
+     '123 Hair Street',    'London',     'EC1A 1BB', 'United Kingdom', 'Net 30', 4.5, 1),
+    ('SUP002', 'Hair World Suppliers',     'David Chen',    'david@hairworld.com',            '+44 161 234 5678',
+     '456 Extension Ave',  'Manchester', 'M1 1AA',  'United Kingdom', 'Net 45', 4.0, 1),
+    ('SUP003', 'Extensions International', 'Maria Garcia',  'maria@extensions-int.com',       '+44 121 345 6789',
+     '789 Beauty Road',    'Birmingham', 'B1 1BB',  'United Kingdom', 'Net 30', 4.8, 1),
+    ('SUP004', 'Quality Wigs Co',          'James Brown',   'james@qualitywigs.co.uk',        '+44 113 456 7890',
+     '321 Wig Lane',       'Leeds',      'LS1 1AA', 'United Kingdom', 'COD',   3.5, 1);
+
+--------------------------------------------------
+-- PRODUCTS
+--------------------------------------------------
+INSERT INTO Products (
+    ProductCode, ProductName, Description, Category,
+    UnitPrice, CostPrice, MinimumStockLevel, ReorderLevel, CreatedBy
+)
+VALUES
+    ('ARIEL-001',    'Ariel',            'Premium auburn wavy wig - high quality synthetic fiber',      'Wigs',       250.00, 150.00, 10, 20, 1),
+    ('BODY-001',     'Body Wave',       'Body wave hair extension bundles - 100% human hair',          'Extensions',  40.00,  25.00, 20, 40, 1),
+    ('MAINT-001',    'Maintenance Kit', 'Hair maintenance kit - shampoo, conditioner, styling',        'Maintenance', 20.00,  12.00, 15, 30, 1),
+    ('LEXY-001',     'Lexy',            'Brown wavy wig - natural looking premium quality',            'Wigs',       220.00, 130.00, 10, 20, 1),
+    ('CURLY-001',    'Curly Delight',   'Tight curl pattern hair extensions - premium grade',          'Extensions',  45.00,  28.00, 15, 30, 1),
+    ('STRAIGHT-001', 'Silky Straight',  'Bone straight hair extensions - ultra smooth',                 'Extensions',  38.00,  23.00, 18, 35, 1);
+
+--------------------------------------------------
+-- INVENTORY
+--------------------------------------------------
+INSERT INTO Inventory (ProductID, QuantityInStock, QuantityReserved, Location, LastUpdatedBy)
+VALUES
+    (1, 45,  2, 'Main Warehouse', 1),
+    (2, 120, 5, 'Main Warehouse', 1),
+    (3, 8,   0, 'Main Warehouse', 1), -- low stock
+    (4, 32,  1, 'Main Warehouse', 1),
+    (5, 28,  0, 'Main Warehouse', 1),
+    (6, 55,  3, 'Main Warehouse', 1);
+
+--------------------------------------------------
+-- INWARD TRANSACTIONS (last 30 days)
+--------------------------------------------------
+INSERT INTO InwardTransactions (
+    TransactionNumber, ProductID, SupplierID,
+    Quantity, UnitCost, ReferenceNumber,
+    TransactionDate, ReceivedBy, Status
+)
+VALUES
+    ('INW-20260201-001', 1, 1, 20, 150.00, 'PO-001', DATEADD(DAY, -15, GETDATE()), 1, 'Approved'),
+    ('INW-20260204-002', 2, 2, 50,  25.00, 'PO-002', DATEADD(DAY, -12, GETDATE()), 3, 'Approved'),
+    ('INW-20260208-003', 4, 3, 15, 130.00, 'PO-003', DATEADD(DAY,  -8, GETDATE()), 3, 'Approved'),
+    ('INW-20260211-004', 5, 1, 30,  28.00, 'PO-004', DATEADD(DAY,  -5, GETDATE()), 1, 'Approved'),
+    ('INW-20260213-005', 2, 2, 30,  25.00, 'PO-005', DATEADD(DAY,  -3, GETDATE()), 3, 'Approved'),
+    ('INW-20260215-006', 6, 3, 25,  23.00, 'PO-006', DATEADD(DAY,  -1, GETDATE()), 1, 'Approved');
+
+--------------------------------------------------
+-- OUTWARD TRANSACTIONS (last 30 days)
+--------------------------------------------------
+INSERT INTO OutwardTransactions (
+    TransactionNumber, ProductID,
+    Quantity, UnitPrice, Reason,
+    CustomerName, ReferenceNumber,
+    TransactionDate, DispatchedBy, Status
+)
+VALUES
+    ('OUT-20260206-001', 1,  5, 250.00, 'Sale',   'Sarah Williams',   'ORD-1001',   DATEADD(DAY, -10, GETDATE()), 3, 'Approved'),
+    ('OUT-20260207-002', 2, 15,  40.00, 'Sale',   'Emma Brown',       'ORD-1002',   DATEADD(DAY,  -9, GETDATE()), 3, 'Approved'),
+    ('OUT-20260209-003', 3,  7,  20.00, 'Sale',   'Olivia Jones',     'ORD-1003',   DATEADD(DAY,  -7, GETDATE()), 4, 'Approved'),
+    ('OUT-20260210-004', 4,  3, 220.00, 'Sale',   'Sophia Davis',     'ORD-1004',   DATEADD(DAY,  -6, GETDATE()), 3, 'Approved'),
+    ('OUT-20260212-005', 2, 10,  40.00, 'Sale',   'Isabella Miller',  'ORD-1005',   DATEADD(DAY,  -4, GETDATE()), 4, 'Approved'),
+    ('OUT-20260213-006', 1,  2, 250.00, 'Sample', 'Marketing Dept',   'SAMPLE-001', DATEADD(DAY,  -3, GETDATE()), 1, 'Approved'),
+    ('OUT-20260214-007', 6,  5,  38.00, 'Sale',   'Mia Wilson',       'ORD-1006',   DATEADD(DAY,  -2, GETDATE()), 3, 'Approved'),
+    ('OUT-20260215-008', 2,  8,  40.00, 'Sale',   'Charlotte Moore',  'ORD-1007',   DATEADD(DAY,  -1, GETDATE()), 4, 'Approved');
+
+--------------------------------------------------
+-- PURCHASE ORDERS
+--------------------------------------------------
+INSERT INTO PurchaseOrders (
+    OrderNumber, SupplierID,
+    OrderDate, ExpectedDeliveryDate,
+    Status, TotalAmount,
+    CreatedBy, ApprovedBy, ApprovedDate
+)
+VALUES
+    ('PO-20260126-001', 1, DATEADD(DAY, -20, GETDATE()), DATEADD(DAY,  -5, GETDATE()), 'Received', 3000.00, 1, 2, DATEADD(DAY, -19, GETDATE())),
+    ('PO-20260131-002', 2, DATEADD(DAY, -15, GETDATE()), DATEADD(DAY,  -3, GETDATE()), 'Received', 1250.00, 3, 2, DATEADD(DAY, -14, GETDATE())),
+    ('PO-20260205-003', 3, DATEADD(DAY, -10, GETDATE()), DATEADD(DAY,   5, GETDATE()), 'Ordered',  1950.00, 1, 2, DATEADD(DAY,  -9, GETDATE())),
+    ('PO-20260210-004', 1, DATEADD(DAY,  -5, GETDATE()), DATEADD(DAY,  10, GETDATE()), 'Ordered',   840.00, 3, 2, DATEADD(DAY,  -4, GETDATE())),
+    ('PO-20260213-005', 2, DATEADD(DAY,  -2, GETDATE()), DATEADD(DAY,  13, GETDATE()), 'Pending',   750.00, 1, NULL, NULL);
+
+INSERT INTO PurchaseOrderDetails (OrderID, ProductID, Quantity, UnitPrice, QuantityReceived)
+VALUES
+    (1, 1, 20, 150.00, 20),
+    (2, 2, 50,  25.00, 50),
+    (3, 4, 15, 130.00,  0),
+    (4, 5, 30,  28.00,  0),
+    (5, 2, 30,  25.00,  0);
+
+--------------------------------------------------
+-- STOCK ADJUSTMENTS
+--------------------------------------------------
+INSERT INTO StockAdjustments (
+    AdjustmentNumber, ProductID, AdjustmentType,
+    QuantityBefore, QuantityChange, QuantityAfter,
+    Reason, AdjustmentDate, AdjustedBy, ApprovedBy
+)
+VALUES
+    ('ADJ-20260209-001', 3, 'Subtract', 10, -2,  8, 'Damaged during storage', DATEADD(DAY, -7, GETDATE()), 3, 2),
+    ('ADJ-20260212-002', 5, 'Add',      27,  1, 28, 'Found missing inventory', DATEADD(DAY, -4, GETDATE()), 4, 2);
+
+--------------------------------------------------
+-- NOTIFICATIONS
+--------------------------------------------------
+INSERT INTO Notifications (
+    UserID, NotificationType, Title, Message,
+    Priority, RelatedEntityType, RelatedEntityID
+)
+VALUES
+    (NULL, 'LowStock',    'Low Stock Alert', 'Maintenance Kit below minimum stock (8 units)', 'High',  'Product',        3),
+    (1,    'OrderPlaced', 'New Order',       'Purchase Order PO-20260213-005 has been created',       'Normal','PurchaseOrder', 5),
+    (2,    'System',      'System Maintenance','System maintenance scheduled for this weekend',        'Low',   NULL,           NULL);
+GO
+
+--------------------------------------------------
+-- SUMMARY
+--------------------------------------------------
+PRINT '';
+PRINT '========================================';
+PRINT 'DATA INSERTION COMPLETE';
+PRINT '========================================';
+PRINT '';
+
+SELECT 'Users'                  AS TableName, COUNT(*) AS RecordCount FROM Users
+UNION ALL SELECT 'Suppliers',          COUNT(*) FROM Suppliers
+UNION ALL SELECT 'Products',           COUNT(*) FROM Products
+UNION ALL SELECT 'Inventory',          COUNT(*) FROM Inventory
+UNION ALL SELECT 'InwardTransactions', COUNT(*) FROM InwardTransactions
+UNION ALL SELECT 'OutwardTransactions',COUNT(*) FROM OutwardTransactions
+UNION ALL SELECT 'PurchaseOrders',     COUNT(*) FROM PurchaseOrders
+UNION ALL SELECT 'PurchaseOrderDetails',COUNT(*) FROM PurchaseOrderDetails
+UNION ALL SELECT 'StockAdjustments',   COUNT(*) FROM StockAdjustments
+UNION ALL SELECT 'Notifications',      COUNT(*) FROM Notifications;
+
+PRINT '';
+PRINT 'Test Credentials:';
+PRINT '  Admin:   username: admin     password: Admin@2024!';
+PRINT '  Manager: username: jsmith    password: Manager@2024!';
+PRINT '  Staff:   username: staff     password: Staff@2024!';
+PRINT '  Staff:   username: mwilliams password: Staff@2024!';
+PRINT '';
+PRINT 'Database ready for testing and demonstration.';
+GO
+
+
+
+
+
+
+Database (MSSQL) - Stored Procedure
+USE MidesInventory;
+GO
+-- ============================================
+-- PREREQUISITE: ALTER USERS TABLE
+-- Add PasswordSalt column for secure password storage
+-- ============================================
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'Users') AND name = 'PasswordSalt')
+BEGIN
+    ALTER TABLE Users ADD PasswordSalt NVARCHAR(255);
+END
+GO
+
+-- ============================================
+-- PREREQUISITE: ALTER USERSESSIONS TABLE
+-- Add ExpiryDate column for session timeout management
+-- ============================================
+IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'UserSessions') AND name = 'ExpiryDate')
+BEGIN
+    ALTER TABLE UserSessions ADD ExpiryDate DATETIME;
+END
+GO
+
+-- ============================================
+-- SUPPORTING TABLES: AUDIT AND ERROR LOGGING
+-- ============================================
+
+-- Create AuditLog table if not exists
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'AuditLog') AND type in (N'U'))
+BEGIN
+    CREATE TABLE AuditLog (
+        LogID INT IDENTITY(1,1) PRIMARY KEY,
+        UserID INT NULL,
+        Action NVARCHAR(100) NOT NULL,
+        IPAddress NVARCHAR(50),
+        Timestamp DATETIME DEFAULT GETDATE(),
+        Details NVARCHAR(MAX),
+        INDEX IX_UserID_Timestamp (UserID, Timestamp),
+        INDEX IX_Action_Timestamp (Action, Timestamp)
+    );
+END
+GO
+
+-- Create ErrorLog table if not exists
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'ErrorLog') AND type in (N'U'))
+BEGIN
+    CREATE TABLE ErrorLog (
+        ErrorID INT IDENTITY(1,1) PRIMARY KEY,
+        ErrorMessage NVARCHAR(MAX),
+        ErrorProcedure NVARCHAR(255),
+        ErrorLine INT,
+        Timestamp DATETIME DEFAULT GETDATE(),
+        INDEX IX_Timestamp (Timestamp)
+    );
+END
+GO
+
+-- Create FailedLoginAttempts table for security
+IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'FailedLoginAttempts') AND type in (N'U'))
+BEGIN
+    CREATE TABLE FailedLoginAttempts (
+        AttemptID INT IDENTITY(1,1) PRIMARY KEY,
+        Username NVARCHAR(50) NOT NULL,
+        IPAddress NVARCHAR(50),
+        AttemptDate DATETIME DEFAULT GETDATE(),
+        INDEX IX_Username_Date (Username, AttemptDate)
+    );
+END
+GO
+-- ============================================
+-- USER AUTHENTICATION
+-- ============================================
+
+-- Login procedure
+CREATE OR ALTER PROCEDURE sp_UserLogin
+    @Username NVARCHAR(50),
+    @PasswordHash NVARCHAR(255),
+    @IPAddress NVARCHAR(50) = NULL,
+    @UserAgent NVARCHAR(500) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    DECLARE @UserID INT;
+    DECLARE @IsActive BIT;
+    DECLARE @StoredPasswordHash NVARCHAR(255);
+    DECLARE @PasswordSalt NVARCHAR(255);
+    DECLARE @SessionToken NVARCHAR(255);
+    DECLARE @ComputedHash NVARCHAR(255);
+    DECLARE @FailedAttempts INT;
+    DECLARE @SessionExpiryDate DATETIME;
+
+   BEGIN TRY
+
+-- ============================================
+        -- STEP 1: CHECK FOR ACCOUNT LOCKOUT
+        -- Prevent brute force attacks by limiting failed attempts
+        -- ============================================
+        SELECT @FailedAttempts = COUNT(*)
+        FROM FailedLoginAttempts
+        WHERE Username = @Username
+          AND AttemptDate > DATEADD(MINUTE, -15, GETDATE());
+        
+        IF @FailedAttempts >= 5
+        BEGIN
+            -- Log lockout attempt
+            INSERT INTO AuditLog (UserID, Action, IPAddress, Details)
+            VALUES (NULL, 'LOGIN_BLOCKED_LOCKOUT', @IPAddress, 
+                    'User: ' + @Username + ' - Too many failed attempts');
+            
+            SELECT 
+                0 AS Success, 
+                'Account temporarily locked due to multiple failed login attempts. Please try again in 15 minutes.' AS Message;
+            RETURN;
+        END
+        
+    -- Validate user credentials
+    SELECT 
+        @UserID = UserID,
+        @IsActive = IsActive
+    FROM Users
+    WHERE Username = @Username 
+        AND PasswordHash = @PasswordHash;
+
+
+    
+    IF @UserID IS NULL
+    BEGIN
+        -- Invalid credentials
+        SELECT 0 AS Success, 'Invalid username or password' AS Message;
+        RETURN;
+    END
+    
+    IF @IsActive = 0
+    BEGIN
+        -- User account is inactive
+        SELECT 0 AS Success, 'User account is inactive' AS Message;
+        RETURN;
+    END
+    
+    -- Generate session token
+    SET @SessionToken = CONVERT(NVARCHAR(255), NEWID());
+    
+    -- Create session
+    INSERT INTO UserSessions (UserID, SessionToken, IPAddress, UserAgent)
+    VALUES (@UserID, @SessionToken, @IPAddress, @UserAgent);
+    
+    -- Update last login date
+    UPDATE Users
+    SET LastLoginDate = GETDATE()
+    WHERE UserID = @UserID;
+    
+    -- Return success with user details
+    SELECT 
+        1 AS Success,
+        'Login successful' AS Message,
+        @SessionToken AS SessionToken,
+        u.UserID,
+        u.Username,
+        u.FirstName,
+        u.LastName,
+        u.Email,
+        u.Role
+    FROM Users u
+    WHERE u.UserID = @UserID;
+END
+GO
+
+-- Logout procedure
+CREATE OR ALTER PROCEDURE sp_UserLogout
+    @SessionToken NVARCHAR(255)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    UPDATE UserSessions
+    SET 
+        IsActive = 0,
+        LogoutDate = GETDATE()
+    WHERE SessionToken = @SessionToken
+        AND IsActive = 1;
+    
+    SELECT 1 AS Success, 'Logout successful' AS Message;
+END
+GO
+-- ============================================
+        -- STEP 2: RETRIEVE USER CREDENTIALS
+        -- Get stored password hash and salt for verification
+        -- ============================================
+        SELECT 
+            @UserID = UserID,
+            @IsActive = IsActive,
+            @StoredPasswordHash = PasswordHash,
+            @PasswordSalt = PasswordSalt
+        FROM Users
+        WHERE Username = @Username;
+        
+        -- Check if user exists
+        IF @UserID IS NULL
+        BEGIN
+            -- Record failed attempt (prevents username enumeration by using generic message)
+            INSERT INTO FailedLoginAttempts (Username, IPAddress)
+            VALUES (@Username, @IPAddress);
+            
+            INSERT INTO AuditLog (UserID, Action, IPAddress, Details)
+            VALUES (NULL, 'LOGIN_FAILED_INVALID_USER', @IPAddress, 'Username: ' + @Username);
+            
+            -- Generic error message to prevent username enumeration
+            SELECT 0 AS Success, 'Invalid username or password' AS Message;
+            RETURN;
+        END
+        
+        -- ============================================
+        -- STEP 3: VERIFY PASSWORD
+        -- Compute hash with salt and compare with stored hash
+        -- ============================================
+        -- Compute hash using SHA2_512 with salt
+        SET @ComputedHash = CONVERT(NVARCHAR(255), 
+            HASHBYTES('SHA2_512', @Password + ISNULL(@PasswordSalt, '')), 2);
+        
+        IF @ComputedHash != @StoredPasswordHash
+        BEGIN
+            -- Record failed attempt
+            INSERT INTO FailedLoginAttempts (Username, IPAddress)
+            VALUES (@Username, @IPAddress);
+            
+            INSERT INTO AuditLog (UserID, Action, IPAddress, Details)
+            VALUES (@UserID, 'LOGIN_FAILED_INVALID_PASSWORD', @IPAddress, NULL);
+            
+            SELECT 0 AS Success, 'Invalid username or password' AS Message;
+            RETURN;
+        END
+        
+        -- ============================================
+        -- STEP 4: CHECK ACCOUNT STATUS
+        -- Ensure user account is active
+        -- ============================================
+        IF @IsActive = 0
+        BEGIN
+            INSERT INTO AuditLog (UserID, Action, IPAddress, Details)
+            VALUES (@UserID, 'LOGIN_FAILED_INACTIVE_ACCOUNT', @IPAddress, NULL);
+            
+            SELECT 0 AS Success, 'Your account is inactive. Please contact support for assistance.' AS Message;
+            RETURN;
+        END
+        
+        -- ============================================
+        -- STEP 5: CLEAR FAILED LOGIN ATTEMPTS
+        -- Successful login - remove previous failed attempts
+        -- ============================================
+        DELETE FROM FailedLoginAttempts
+        WHERE Username = @Username;
+        
+        -- ============================================
+        -- STEP 6: INVALIDATE EXISTING SESSIONS
+        -- Optional: Expire any active sessions for this user
+        -- Uncomment if you want single-session-per-user policy
+        -- ============================================
+        UPDATE UserSessions
+        SET IsActive = 0, LogoutDate = GETDATE()
+        WHERE UserID = @UserID AND IsActive = 1;
+        
+        -- ============================================
+        -- STEP 7: GENERATE SECURE SESSION TOKEN
+        -- Create cryptographically secure session identifier
+        -- ============================================
+        SET @SessionToken = CONVERT(NVARCHAR(255), 
+            HASHBYTES('SHA2_256', 
+                CAST(NEWID() AS NVARCHAR(36)) + 
+                CAST(GETDATE() AS NVARCHAR(50)) + 
+                @Username + 
+                ISNULL(@IPAddress, '')
+            ), 2);
+        
+        -- Set session expiry (24 hours from now)
+        SET @SessionExpiryDate = DATEADD(HOUR, 24, GETDATE());
+        
+        -- ============================================
+        -- STEP 8: CREATE NEW SESSION
+        -- Store session details in database
+        -- ============================================
+        INSERT INTO UserSessions (UserID, SessionToken, IPAddress, UserAgent, ExpiryDate, IsActive, LoginDate)
+        VALUES (@UserID, @SessionToken, @IPAddress, @UserAgent, @SessionExpiryDate, 1, GETDATE());
+        
+        -- ============================================
+        -- STEP 9: UPDATE LAST LOGIN DATE
+        -- Track user login activity
+        -- ============================================
+        UPDATE Users
+        SET LastLoginDate = GETDATE()
+        WHERE UserID = @UserID;
+        
+        -- ============================================
+        -- STEP 10: LOG SUCCESSFUL LOGIN
+        -- Create audit trail
+        -- ============================================
+        INSERT INTO AuditLog (UserID, Action, IPAddress, Details)
+        VALUES (@UserID, 'LOGIN_SUCCESS', @IPAddress, 'Session created successfully');
+        
+        -- ============================================
+        -- STEP 11: RETURN SUCCESS WITH USER DETAILS
+        -- Send session token and user information to client
+        -- ============================================
+        SELECT
+            1 AS Success,
+            'Login successful' AS Message,
+            @SessionToken AS SessionToken,
+            @SessionExpiryDate AS ExpiryDate,
+            u.UserID,
+            u.Username,
+            u.FirstName,
+            u.LastName,
+            u.Email,
+            u.Role
+        FROM Users u
+        WHERE u.UserID = @UserID;
+        
+    END TRY
+    BEGIN CATCH
+        -- ============================================
+        -- ERROR HANDLING
+        -- Log error and return generic error message
+        -- ============================================
+        INSERT INTO ErrorLog (ErrorMessage, ErrorProcedure, ErrorLine)
+        VALUES (
+            ERROR_MESSAGE(),
+            ERROR_PROCEDURE(),
+            ERROR_LINE()
+        );
+        
+        -- Return error to client without exposing internal details
+        SELECT 
+            0 AS Success, 
+            'An error occurred during login. Please try again or contact support if the problem persists.' AS Message;
+    END CATCH
+END
+GO
+-- ============================================
+-- STORED PROCEDURE: VALIDATE SESSION
+-- Purpose: Verify session token is valid and not expired
+-- Used by: All protected endpoints in the application
+-- Security Features:
+--   - Token validation
+--   - Expiry checking
+--   - Automatic session cleanup
+-- ============================================
+CREATE OR ALTER PROCEDURE sp_ValidateSession
+    @SessionToken NVARCHAR(255)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    DECLARE @UserID INT;
+    DECLARE @IsActive BIT;
+    DECLARE @ExpiryDate DATETIME;
+    
+    BEGIN TRY
+        -- Retrieve session details
+        SELECT 
+            @UserID = us.UserID,
+            @IsActive = us.IsActive,
+            @ExpiryDate = us.ExpiryDate
+        FROM UserSessions us
+        WHERE us.SessionToken = @SessionToken;
+        
+        -- Check if session exists
+        IF @UserID IS NULL
+        BEGIN
+            SELECT 0 AS IsValid, 'Session not found' AS Message;
+            RETURN;
+        END
+        
+        -- Check if session is active
+        IF @IsActive = 0
+        BEGIN
+            SELECT 0 AS IsValid, 'Session has been terminated' AS Message;
+            RETURN;
+        END
+        
+        -- Check if session has expired
+        IF @ExpiryDate < GETDATE()
+        BEGIN
+            -- Automatically expire the session
+            UPDATE UserSessions
+            SET IsActive = 0, LogoutDate = GETDATE()
+            WHERE SessionToken = @SessionToken;
+            
+            -- Log session expiry
+            INSERT INTO AuditLog (UserID, Action, IPAddress, Details)
+            SELECT 
+                @UserID, 
+                'SESSION_EXPIRED', 
+                IPAddress, 
+                'Session expired automatically'
+            FROM UserSessions
+            WHERE SessionToken = @SessionToken;
+            
+            SELECT 0 AS IsValid, 'Session has expired. Please log in again.' AS Message;
+            RETURN;
+        END
+        
+        -- Session is valid - return user details
+        SELECT 
+            1 AS IsValid,
+            'Session is valid' AS Message,
+            u.UserID,
+            u.Username,
+            u.FirstName,
+            u.LastName,
+            u.Email,
+            u.Role,
+            @ExpiryDate AS ExpiryDate
+        FROM Users u
+        WHERE u.UserID = @UserID;
+        
+    END TRY
+    BEGIN CATCH
+        -- Log error
+        INSERT INTO ErrorLog (ErrorMessage, ErrorProcedure, ErrorLine)
+        VALUES (
+            ERROR_MESSAGE(),
+            ERROR_PROCEDURE(),
+            ERROR_LINE()
+        );
+        
+        SELECT 0 AS IsValid, 'An error occurred during session validation' AS Message;
+    END CATCH
+END
+GO
+-- ============================================
+-- UTILITY PROCEDURE: CLEANUP EXPIRED SESSIONS
+-- Purpose: Remove expired sessions and old failed login attempts
+-- Recommended: Run this as a scheduled job (daily)
+-- ============================================
+CREATE OR ALTER PROCEDURE sp_CleanupExpiredSessions
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    DECLARE @DeletedSessions INT;
+    DECLARE @DeletedAttempts INT;
+    
+    BEGIN TRY
+        -- Deactivate expired sessions
+        UPDATE UserSessions
+        SET IsActive = 0, LogoutDate = GETDATE()
+        WHERE IsActive = 1
+          AND ExpiryDate < GETDATE();
+        
+        SET @DeletedSessions = @@ROWCOUNT;
+        
+        -- Delete old failed login attempts (older than 7 days)
+        DELETE FROM FailedLoginAttempts
+        WHERE AttemptDate < DATEADD(DAY, -7, GETDATE());
+        
+        SET @DeletedAttempts = @@ROWCOUNT;
+        
+        -- Log cleanup activity
+        INSERT INTO AuditLog (UserID, Action, IPAddress, Details)
+        VALUES (NULL, 'CLEANUP_EXECUTED', NULL, 
+                'Expired sessions: ' + CAST(@DeletedSessions AS NVARCHAR(10)) + 
+                ', Failed attempts removed: ' + CAST(@DeletedAttempts AS NVARCHAR(10)));
+        
+        SELECT 
+            1 AS Success, 
+            'Cleanup completed' AS Message,
+            @DeletedSessions AS ExpiredSessionsCleaned,
+            @DeletedAttempts AS FailedAttemptsRemoved;
+        
+    END TRY
+    BEGIN CATCH
+        INSERT INTO ErrorLog (ErrorMessage, ErrorProcedure, ErrorLine)
+        VALUES (
+            ERROR_MESSAGE(),
+            ERROR_PROCEDURE(),
+            ERROR_LINE()
+        );
+        
+        SELECT 0 AS Success, 'Cleanup failed' AS Message;
+    END CATCH
+END
+GO
+
+-- ============================================
+-- UTILITY PROCEDURE: CREATE NEW USER (HELPER)
+-- Purpose: Create a new user with secure password hashing
+-- Used by: Admin panel or registration system
+-- ============================================
+CREATE OR ALTER PROCEDURE sp_CreateUser
+    @Username NVARCHAR(50),
+    @Password NVARCHAR(255),
+    @FirstName NVARCHAR(50),
+    @LastName NVARCHAR(50),
+    @Email NVARCHAR(100),
+    @Role NVARCHAR(20) = 'Customer'
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    DECLARE @PasswordSalt NVARCHAR(255);
+    DECLARE @PasswordHash NVARCHAR(255);
+    DECLARE @NewUserID INT;
+    
+    BEGIN TRY
+        -- Check if username already exists
+        IF EXISTS (SELECT 1 FROM Users WHERE Username = @Username)
+        BEGIN
+            SELECT 0 AS Success, 'Username already exists' AS Message;
+            RETURN;
+        END
+        
+        -- Check if email already exists
+        IF EXISTS (SELECT 1 FROM Users WHERE Email = @Email)
+        BEGIN
+            SELECT 0 AS Success, 'Email already registered' AS Message;
+            RETURN;
+        END
+        
+        -- Generate random salt
+        SET @PasswordSalt = CONVERT(NVARCHAR(255), NEWID());
+        
+        -- Hash password with salt
+        SET @PasswordHash = CONVERT(NVARCHAR(255), 
+            HASHBYTES('SHA2_512', @Password + @PasswordSalt), 2);
+        
+        -- Insert new user
+        INSERT INTO Users (Username, PasswordHash, PasswordSalt, FirstName, LastName, Email, Role, IsActive, CreatedDate)
+        VALUES (@Username, @PasswordHash, @PasswordSalt, @FirstName, @LastName, @Email, @Role, 1, GETDATE());
+        
+        SET @NewUserID = SCOPE_IDENTITY();
+        
+        -- Log user creation
+        INSERT INTO AuditLog (UserID, Action, IPAddress, Details)
+        VALUES (@NewUserID, 'USER_CREATED', NULL, 'New user account created');
+        
+        SELECT 
+            1 AS Success, 
+            'User created successfully' AS Message,
+            @NewUserID AS UserID;
+        
+    END TRY
+    BEGIN CATCH
+        INSERT INTO ErrorLog (ErrorMessage, ErrorProcedure, ErrorLine)
+        VALUES (
+            ERROR_MESSAGE(),
+            ERROR_PROCEDURE(),
+            ERROR_LINE()
+        );
+        
+        SELECT 0 AS Success, 'An error occurred while creating user' AS Message;
+    END CATCH
+END
+GO
+-- ============================================
+-- END OF AUTHENTICATION MODULE
+-- ============================================
+
+PRINT 'Procedures created:';
+PRINT '  - sp_UserLogin (Enhanced security with salt, lockout protection)';
+PRINT '  - sp_UserLogout (Session termination)';
+PRINT '  - sp_ValidateSession (Token validation)';
+PRINT '  - sp_CleanupExpiredSessions (Maintenance)';
+PRINT '  - sp_CreateUser (User registration)';
+PRINT 'Supporting tables created:';
+PRINT '  - AuditLog (Authentication event tracking)';
+PRINT '  - ErrorLog (Error tracking)';
+PRINT '  - FailedLoginAttempts (Brute force protection)';
+PRINT 'IMPORTANT: Update existing user passwords using sp_CreateUser or manually add PasswordSalt';
+GO
+
+
+
+
+
+
+-- ============================================
+-- HELPER: Audit logging wrapper
+-- ============================================
+CREATE OR ALTER PROCEDURE sp_LogAudit
+    @TableName NVARCHAR(100),
+    @RecordID INT,
+    @Action NVARCHAR(50),
+    @ChangedBy INT
+AS
+BEGIN
+    INSERT INTO AuditLog (TableName, RecordID, Action, ChangedBy)
+    VALUES (@TableName, @RecordID, @Action, @ChangedBy);
+END
+GO
+-- ============================================
+-- GET INVENTORY
+-- Returns inventory with stock status
+-- ============================================
+CREATE OR ALTER PROCEDURE sp_GetInventory
+    @ProductID INT = NULL,
+    @LowStockOnly BIT = 0
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    SELECT 
+        i.InventoryID,
+        i.ProductID,
+        p.ProductCode,
+        p.ProductName,
+        p.Category,
+        i.QuantityInStock,
+        i.QuantityReserved,
+        i.QuantityAvailable,
+        p.MinimumStockLevel,
+        p.ReorderLevel,
+        p.UnitPrice,
+        (i.QuantityInStock * p.UnitPrice) AS TotalValue,
+        CASE 
+            WHEN i.QuantityInStock <= p.MinimumStockLevel THEN 'Low'
+            WHEN i.QuantityInStock <= p.ReorderLevel THEN 'Medium'
+            ELSE 'High'
+        END AS StockStatus,
+        i.Location,
+        i.LastStockCheck,
+        i.LastUpdatedDate
+    FROM Inventory i
+    INNER JOIN Products p ON i.ProductID = p.ProductID
+    WHERE (@ProductID IS NULL OR i.ProductID = @ProductID)
+      AND (@LowStockOnly = 0 OR i.QuantityInStock <= p.MinimumStockLevel)
+      AND p.IsActive = 1
+    ORDER BY 
+        CASE WHEN i.QuantityInStock <= p.MinimumStockLevel THEN 1
+             WHEN i.QuantityInStock <= p.ReorderLevel THEN 2
+             ELSE 3 END,
+        p.ProductName;
+END
+GO
+
+-- ============================================
+-- ADD INWARD TRANSACTION
+-- Records stock received from supplier
+-- ============================================
+CREATE OR ALTER PROCEDURE sp_AddInwardTransaction
+    @ProductID INT,
+    @SupplierID INT,
+    @Quantity INT,
+    @UnitCost DECIMAL(10,2),
+    @ReferenceNumber NVARCHAR(100) = NULL,
+    @InvoiceNumber NVARCHAR(100) = NULL,
+    @BatchNumber NVARCHAR(100) = NULL,
+    @Notes NVARCHAR(MAX) = NULL,
+    @ReceivedBy INT,
+    @AutoApprove BIT = 0
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        
+        DECLARE @InwardID INT;
+        DECLARE @TransactionNumber NVARCHAR(50) = 
+            'INW-' + FORMAT(GETDATE(), 'yyyyMMdd') + '-' + 
+            RIGHT('00000' + CAST(NEXT VALUE FOR seq_InwardTransaction AS NVARCHAR), 5);
+        
+        -- Insert transaction
+        INSERT INTO InwardTransactions (
+            TransactionNumber, ProductID, SupplierID, Quantity, UnitCost,
+            ReferenceNumber, InvoiceNumber, BatchNumber, Notes, ReceivedBy,
+            Status
+        )
+        VALUES (
+            @TransactionNumber, @ProductID, @SupplierID, @Quantity, @UnitCost,
+            @ReferenceNumber, @InvoiceNumber, @BatchNumber, @Notes, @ReceivedBy,
+            CASE WHEN @AutoApprove = 1 THEN 'Approved' ELSE 'Pending' END
+        );
+        
+        SET @InwardID = SCOPE_IDENTITY();
+        
+        -- Update inventory if auto-approved
+        IF @AutoApprove = 1
+        BEGIN
+            UPDATE Inventory
+            SET QuantityInStock = QuantityInStock + @Quantity,
+                LastUpdatedDate = GETDATE(),
+                LastUpdatedBy = @ReceivedBy
+            WHERE ProductID = @ProductID;
+            
+            -- Create inventory record if doesn't exist
+            IF @@ROWCOUNT = 0
+                INSERT INTO Inventory (ProductID, QuantityInStock, LastUpdatedBy)
+                VALUES (@ProductID, @Quantity, @ReceivedBy);
+        END
+        
+        EXEC sp_LogAudit 'InwardTransactions', @InwardID, 'INSERT', @ReceivedBy;
+        
+        COMMIT TRANSACTION;
+        
+        SELECT 1 AS Success, 
+               'Inward transaction recorded' AS Message,
+               @InwardID AS InwardID,
+               @TransactionNumber AS TransactionNumber;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+        
+        INSERT INTO ErrorLog (ErrorMessage, ErrorProcedure, ErrorLine)
+        VALUES (ERROR_MESSAGE(), ERROR_PROCEDURE(), ERROR_LINE());
+        
+        SELECT 0 AS Success, ERROR_MESSAGE() AS Message;
+    END CATCH
+END
+GO
+
+-- ============================================
+-- ADD OUTWARD TRANSACTION
+-- Records stock dispatched to customer
+-- ============================================
+CREATE OR ALTER PROCEDURE sp_AddOutwardTransaction
+    @ProductID INT,
+    @Quantity INT,
+    @UnitPrice DECIMAL(10,2) = NULL,
+    @Reason NVARCHAR(50),
+    @CustomerName NVARCHAR(200) = NULL,
+    @ReferenceNumber NVARCHAR(100) = NULL,
+    @OrderNumber NVARCHAR(100) = NULL,
+    @Notes NVARCHAR(MAX) = NULL,
+    @DispatchedBy INT,
+    @AutoApprove BIT = 0
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        
+        DECLARE @OutwardID INT;
+        DECLARE @CurrentStock INT;
+        
+        -- Validate stock availability
+        SELECT @CurrentStock = QuantityAvailable,
+               @UnitPrice = ISNULL(@UnitPrice, p.UnitPrice)
+        FROM Inventory i
+        INNER JOIN Products p ON i.ProductID = p.ProductID
+        WHERE i.ProductID = @ProductID;
+        
+        IF @CurrentStock IS NULL OR @CurrentStock < @Quantity
+        BEGIN
+            ROLLBACK TRANSACTION;
+            SELECT 0 AS Success, 
+                   'Insufficient stock' AS Message,
+                   ISNULL(@CurrentStock, 0) AS CurrentStock;
+            RETURN;
+        END
+        
+        DECLARE @TransactionNumber NVARCHAR(50) = 
+            'OUT-' + FORMAT(GETDATE(), 'yyyyMMdd') + '-' + 
+            RIGHT('00000' + CAST(NEXT VALUE FOR seq_OutwardTransaction AS NVARCHAR), 5);
+        
+        -- Insert transaction
+        INSERT INTO OutwardTransactions (
+            TransactionNumber, ProductID, Quantity, UnitPrice, Reason,
+            CustomerName, ReferenceNumber, OrderNumber, Notes, DispatchedBy,
+            Status
+        )
+        VALUES (
+            @TransactionNumber, @ProductID, @Quantity, @UnitPrice, @Reason,
+            @CustomerName, @ReferenceNumber, @OrderNumber, @Notes, @DispatchedBy,
+            CASE WHEN @AutoApprove = 1 THEN 'Approved' ELSE 'Pending' END
+        );
+        
+        SET @OutwardID = SCOPE_IDENTITY();
+        
+        -- Update inventory if auto-approved
+        IF @AutoApprove = 1
+            UPDATE Inventory
+            SET QuantityInStock = QuantityInStock - @Quantity,
+                LastUpdatedDate = GETDATE(),
+                LastUpdatedBy = @DispatchedBy
+            WHERE ProductID = @ProductID;
+        
+        EXEC sp_LogAudit 'OutwardTransactions', @OutwardID, 'INSERT', @DispatchedBy;
+        
+        COMMIT TRANSACTION;
+        
+        SELECT 1 AS Success,
+               'Outward transaction recorded' AS Message,
+               @OutwardID AS OutwardID,
+               @TransactionNumber AS TransactionNumber;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+        
+        INSERT INTO ErrorLog (ErrorMessage, ErrorProcedure, ErrorLine)
+        VALUES (ERROR_MESSAGE(), ERROR_PROCEDURE(), ERROR_LINE());
+        
+        SELECT 0 AS Success, ERROR_MESSAGE() AS Message;
+    END CATCH
+END
+GO
+
+-- ============================================
+-- CREATE PURCHASE ORDER
+-- Generates PO with line items (JSON input)
+-- ============================================
+CREATE OR ALTER PROCEDURE sp_CreatePurchaseOrder
+    @SupplierID INT,
+    @ExpectedDeliveryDate DATE = NULL,
+    @Notes NVARCHAR(MAX) = NULL,
+    @CreatedBy INT,
+    @OrderDetails NVARCHAR(MAX) -- JSON: [{ProductID, Quantity, UnitPrice}]
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        
+        DECLARE @OrderID INT;
+        DECLARE @OrderNumber NVARCHAR(50) = 
+            'PO-' + FORMAT(GETDATE(), 'yyyyMMdd') + '-' + 
+            RIGHT('00000' + CAST(NEXT VALUE FOR seq_PurchaseOrder AS NVARCHAR), 5);
+        
+        -- Create order header
+        INSERT INTO PurchaseOrders (OrderNumber, SupplierID, ExpectedDeliveryDate, Notes, CreatedBy)
+        VALUES (@OrderNumber, @SupplierID, @ExpectedDeliveryDate, @Notes, @CreatedBy);
+        
+        SET @OrderID = SCOPE_IDENTITY();
+        
+        -- Insert order details from JSON
+        INSERT INTO PurchaseOrderDetails (OrderID, ProductID, Quantity, UnitPrice)
+        SELECT @OrderID,
+               JSON_VALUE(value, '$.ProductID'),
+               JSON_VALUE(value, '$.Quantity'),
+               JSON_VALUE(value, '$.UnitPrice')
+        FROM OPENJSON(@OrderDetails);
+        
+        -- Update total amount
+        UPDATE PurchaseOrders
+        SET TotalAmount = (SELECT SUM(TotalPrice) FROM PurchaseOrderDetails WHERE OrderID = @OrderID)
+        WHERE OrderID = @OrderID;
+        
+        EXEC sp_LogAudit 'PurchaseOrders', @OrderID, 'INSERT', @CreatedBy;
+        
+        COMMIT TRANSACTION;
+        
+        SELECT 1 AS Success,
+               'Purchase order created' AS Message,
+               @OrderID AS OrderID,
+               @OrderNumber AS OrderNumber;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+        
+        INSERT INTO ErrorLog (ErrorMessage, ErrorProcedure, ErrorLine)
+        VALUES (ERROR_MESSAGE(), ERROR_PROCEDURE(), ERROR_LINE());
+        
+        SELECT 0 AS Success, ERROR_MESSAGE() AS Message;
+    END CATCH
+END
+GO
+
+-- ============================================
+-- RECEIVE PURCHASE ORDER
+-- Marks PO as received, updates inventory
+-- ============================================
+CREATE OR ALTER PROCEDURE sp_ReceivePurchaseOrder
+    @OrderID INT,
+    @ReceivedBy INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        
+        DECLARE @SupplierID INT, @OrderNumber NVARCHAR(50);
+        
+        -- Validate order exists
+        SELECT @SupplierID = SupplierID, @OrderNumber = OrderNumber
+        FROM PurchaseOrders
+        WHERE OrderID = @OrderID;
+        
+        IF @OrderNumber IS NULL
+        BEGIN
+            ROLLBACK TRANSACTION;
+            SELECT 0 AS Success, 'Order not found' AS Message;
+            RETURN;
+        END
+        
+        -- Create inward transactions
+        INSERT INTO InwardTransactions (
+            TransactionNumber, ProductID, SupplierID, Quantity, UnitCost,
+            ReferenceNumber, ReceivedBy, Status
+        )
+        SELECT 
+            'INW-' + @OrderNumber + '-' + CAST(od.OrderDetailID AS NVARCHAR),
+            od.ProductID, @SupplierID, od.Quantity, od.UnitPrice,
+            @OrderNumber, @ReceivedBy, 'Approved'
+        FROM PurchaseOrderDetails od
+        WHERE od.OrderID = @OrderID;
+        
+        -- Update inventory
+        UPDATE i
+        SET QuantityInStock = i.QuantityInStock + od.Quantity,
+            LastUpdatedDate = GETDATE(),
+            LastUpdatedBy = @ReceivedBy
+        FROM Inventory i
+        INNER JOIN PurchaseOrderDetails od ON i.ProductID = od.ProductID
+        WHERE od.OrderID = @OrderID;
+        
+        -- Update order
+        UPDATE PurchaseOrders
+        SET Status = 'Received',
+            ActualDeliveryDate = CAST(GETDATE() AS DATE),
+            ModifiedBy = @ReceivedBy,
+            ModifiedDate = GETDATE()
+        WHERE OrderID = @OrderID;
+        
+        -- Update order details
+        UPDATE PurchaseOrderDetails
+        SET QuantityReceived = Quantity
+        WHERE OrderID = @OrderID;
+        
+        EXEC sp_LogAudit 'PurchaseOrders', @OrderID, 'RECEIVE', @ReceivedBy;
+        
+        COMMIT TRANSACTION;
+        
+        SELECT 1 AS Success, 'Order received, inventory updated' AS Message;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+        
+        INSERT INTO ErrorLog (ErrorMessage, ErrorProcedure, ErrorLine)
+        VALUES (ERROR_MESSAGE(), ERROR_PROCEDURE(), ERROR_LINE());
+        
+        SELECT 0 AS Success, ERROR_MESSAGE() AS Message;
+    END CATCH
+END
+GO
+
+PRINT 'Procedures: sp_GetInventory, sp_AddInwardTransaction, sp_AddOutwardTransaction,';
+PRINT '            sp_CreatePurchaseOrder, sp_ReceivePurchaseOrder';
+GO
+
+
+Database (MSSQL) - Testing sample data
+
+USE MidesInventory;
+GO
+
+SET NOCOUNT ON;
+GO
+
+-- ============================================
+-- CREATE USERS (Using sp_CreateUser for proper password hashing)
+-- ============================================
+PRINT 'Creating users with secure password hashing...';
+
+EXEC sp_CreateUser 'admin', 'Admin@2024!', 'System', 'Administrator', 'admin@midescollection.com', 'Admin';
+EXEC sp_CreateUser 'jsmith', 'Manager@2024!', 'John', 'Smith', 'john.smith@midescollection.com', 'Manager';
+EXEC sp_CreateUser 'staff', 'Staff@2024!', 'Jane', 'Doe', 'jane.doe@midescollection.com', 'Staff';
+EXEC sp_CreateUser 'mwilliams', 'Staff@2024!', 'Michael', 'Williams', 'michael.williams@midescollection.com', 'Staff';
+GO
+
+-- ============================================
+-- INSERT SUPPLIERS
+-- ============================================
+INSERT INTO Suppliers (SupplierCode, SupplierName, ContactName, Email, Phone, Address, City, PostalCode, Country, PaymentTerms, Rating, CreatedBy)
+VALUES 
+    ('SUP001', 'Premium Hair Ltd', 'Sarah Johnson', 'sarah@premiumhair.com', '+44 20 7123 4567', '123 Hair Street', 'London', 'EC1A 1BB', 'United Kingdom', 'Net 30', 4.5, 1),
+    ('SUP002', 'Hair World Suppliers', 'David Chen', 'david@hairworld.com', '+44 161 234 5678', '456 Extension Ave', 'Manchester', 'M1 1AA', 'United Kingdom', 'Net 45', 4.0, 1),
+    ('SUP003', 'Extensions International', 'Maria Garcia', 'maria@extensions-int.com', '+44 121 345 6789', '789 Beauty Road', 'Birmingham', 'B1 1BB', 'United Kingdom', 'Net 30', 4.8, 1),
+    ('SUP004', 'Quality Wigs Co', 'James Brown', 'james@qualitywigs.co.uk', '+44 113 456 7890', '321 Wig Lane', 'Leeds', 'LS1 1AA', 'United Kingdom', 'COD', 3.5, 1);
+
+-- ============================================
+-- INSERT PRODUCTS
+-- ============================================
+INSERT INTO Products (ProductCode, ProductName, Description, Category, UnitPrice, CostPrice, MinimumStockLevel, ReorderLevel, CreatedBy)
+VALUES 
+    ('ARIEL-001', 'Ariel', 'Premium auburn wavy wig - High quality synthetic fiber', 'Wigs', 250.00, 150.00, 10, 20, 1),
+    ('BODY-001', 'Body Wave', 'Luxurious body wave hair extension bundles - 100% human hair', 'Extensions', 40.00, 25.00, 20, 40, 1),
+    ('MAINT-001', 'Maintenance Kit', 'Complete hair maintenance kit - shampoo, conditioner, styling products', 'Maintenance', 20.00, 12.00, 15, 30, 1),
+    ('LEXY-001', 'Lexy', 'Brown wavy wig - Natural looking premium quality', 'Wigs', 220.00, 130.00, 10, 20, 1),
+    ('CURLY-001', 'Curly Delight', 'Tight curl pattern hair extensions - Premium grade', 'Extensions', 45.00, 28.00, 15, 30, 1),
+    ('STRAIGHT-001', 'Silky Straight', 'Bone straight hair extensions - Ultra smooth', 'Extensions', 38.00, 23.00, 18, 35, 1);
+
+-- ============================================
+-- INSERT INITIAL INVENTORY
+-- ============================================
+INSERT INTO Inventory (ProductID, QuantityInStock, QuantityReserved, Location, LastUpdatedBy)
+VALUES 
+    (1, 45, 2, 'Main Warehouse', 1),
+    (2, 120, 5, 'Main Warehouse', 1),
+    (3, 8, 0, 'Main Warehouse', 1),  -- Low stock scenario
+    (4, 32, 1, 'Main Warehouse', 1),
+    (5, 28, 0, 'Main Warehouse', 1),
+    (6, 55, 3, 'Main Warehouse', 1);
+
+-- ============================================
+-- INSERT INWARD TRANSACTIONS (Last 30 days)
+-- ============================================
+INSERT INTO InwardTransactions (TransactionNumber, ProductID, SupplierID, Quantity, UnitCost, ReferenceNumber, TransactionDate, ReceivedBy, Status)
+VALUES 
+    ('INW-20260201-001', 1, 1, 20, 150.00, 'PO-001', DATEADD(DAY, -15, GETDATE()), 1, 'Approved'),
+    ('INW-20260204-002', 2, 2, 50, 25.00, 'PO-002', DATEADD(DAY, -12, GETDATE()), 3, 'Approved'),
+    ('INW-20260208-003', 4, 3, 15, 130.00, 'PO-003', DATEADD(DAY, -8, GETDATE()), 3, 'Approved'),
+    ('INW-20260211-004', 5, 1, 30, 28.00, 'PO-004', DATEADD(DAY, -5, GETDATE()), 1, 'Approved'),
+    ('INW-20260213-005', 2, 2, 30, 25.00, 'PO-005', DATEADD(DAY, -3, GETDATE()), 3, 'Approved'),
+    ('INW-20260215-006', 6, 3, 25, 23.00, 'PO-006', DATEADD(DAY, -1, GETDATE()), 1, 'Approved');
+
+-- ============================================
+-- INSERT OUTWARD TRANSACTIONS (Last 30 days)
+-- ============================================
+INSERT INTO OutwardTransactions (TransactionNumber, ProductID, Quantity, UnitPrice, Reason, CustomerName, ReferenceNumber, TransactionDate, DispatchedBy, Status)
+VALUES 
+    ('OUT-20260206-001', 1, 5, 250.00, 'Sale', 'Sarah Williams', 'ORD-1001', DATEADD(DAY, -10, GETDATE()), 3, 'Approved'),
+    ('OUT-20260207-002', 2, 15, 40.00, 'Sale', 'Emma Brown', 'ORD-1002', DATEADD(DAY, -9, GETDATE()), 3, 'Approved'),
+    ('OUT-20260209-003', 3, 7, 20.00, 'Sale', 'Olivia Jones', 'ORD-1003', DATEADD(DAY, -7, GETDATE()), 4, 'Approved'),
+    ('OUT-20260210-004', 4, 3, 220.00, 'Sale', 'Sophia Davis', 'ORD-1004', DATEADD(DAY, -6, GETDATE()), 3, 'Approved'),
+    ('OUT-20260212-005', 2, 10, 40.00, 'Sale', 'Isabella Miller', 'ORD-1005', DATEADD(DAY, -4, GETDATE()), 4, 'Approved'),
+    ('OUT-20260213-006', 1, 2, 250.00, 'Sample', 'Marketing Dept', 'SAMPLE-001', DATEADD(DAY, -3, GETDATE()), 1, 'Approved'),
+    ('OUT-20260214-007', 6, 5, 38.00, 'Sale', 'Mia Wilson', 'ORD-1006', DATEADD(DAY, -2, GETDATE()), 3, 'Approved'),
+    ('OUT-20260215-008', 2, 8, 40.00, 'Sale', 'Charlotte Moore', 'ORD-1007', DATEADD(DAY, -1, GETDATE()), 4, 'Approved');
+
+-- ============================================
+-- INSERT PURCHASE ORDERS
+-- ============================================
+INSERT INTO PurchaseOrders (OrderNumber, SupplierID, OrderDate, ExpectedDeliveryDate, Status, TotalAmount, CreatedBy, ApprovedBy, ApprovedDate)
+VALUES 
+    ('PO-20260126-001', 1, DATEADD(DAY, -20, GETDATE()), DATEADD(DAY, -5, GETDATE()), 'Received', 3000.00, 1, 2, DATEADD(DAY, -19, GETDATE())),
+    ('PO-20260131-002', 2, DATEADD(DAY, -15, GETDATE()), DATEADD(DAY, -3, GETDATE()), 'Received', 1250.00, 3, 2, DATEADD(DAY, -14, GETDATE())),
+    ('PO-20260205-003', 3, DATEADD(DAY, -10, GETDATE()), DATEADD(DAY, 5, GETDATE()), 'Ordered', 1950.00, 1, 2, DATEADD(DAY, -9, GETDATE())),
+    ('PO-20260210-004', 1, DATEADD(DAY, -5, GETDATE()), DATEADD(DAY, 10, GETDATE()), 'Ordered', 840.00, 3, 2, DATEADD(DAY, -4, GETDATE())),
+    ('PO-20260213-005', 2, DATEADD(DAY, -2, GETDATE()), DATEADD(DAY, 13, GETDATE()), 'Pending', 750.00, 1, NULL, NULL);
+
+INSERT INTO PurchaseOrderDetails (OrderID, ProductID, Quantity, UnitPrice, QuantityReceived)
+VALUES 
+    (1, 1, 20, 150.00, 20),
+    (2, 2, 50, 25.00, 50),
+    (3, 4, 15, 130.00, 0),
+    (4, 5, 30, 28.00, 0),
+    (5, 2, 30, 25.00, 0);
+
+-- ============================================
+-- INSERT STOCK ADJUSTMENTS
+-- ============================================
+INSERT INTO StockAdjustments (AdjustmentNumber, ProductID, AdjustmentType, QuantityBefore, QuantityChange, QuantityAfter, Reason, AdjustmentDate, AdjustedBy, ApprovedBy)
+VALUES 
+    ('ADJ-20260209-001', 3, 'Subtract', 10, -2, 8, 'Damaged during storage', DATEADD(DAY, -7, GETDATE()), 3, 2),
+    ('ADJ-20260212-002', 5, 'Add', 27, 1, 28, 'Found missing inventory', DATEADD(DAY, -4, GETDATE()), 4, 2);
+
+-- ============================================
+-- INSERT NOTIFICATIONS
+-- ============================================
+INSERT INTO Notifications (UserID, NotificationType, Title, Message, Priority, RelatedEntityType, RelatedEntityID)
+VALUES 
+    (NULL, 'LowStock', 'Low Stock Alert', 'Maintenance Kit is below minimum stock level (8 units)', 'High', 'Product', 3),
+    (1, 'OrderPlaced', 'New Order Placed', 'Purchase Order PO-20260213-005 has been created', 'Normal', 'PurchaseOrder', 5),
+    (2, 'System', 'System Maintenance', 'System maintenance scheduled for this weekend', 'Low', NULL, NULL);
+
+GO
+
+-- ============================================
+-- DATA VALIDATION & SUMMARY
+-- ============================================
+PRINT '';
+PRINT '========================================';
+PRINT 'DATA INSERTION COMPLETE';
+PRINT '========================================';
+PRINT '';
+
+SELECT 
+    'Users' AS TableName, COUNT(*) AS RecordCount FROM Users
+UNION ALL SELECT 'Suppliers', COUNT(*) FROM Suppliers
+UNION ALL SELECT 'Products', COUNT(*) FROM Products
+UNION ALL SELECT 'Inventory', COUNT(*) FROM Inventory
+UNION ALL SELECT 'InwardTransactions', COUNT(*) FROM InwardTransactions
+UNION ALL SELECT 'OutwardTransactions', COUNT(*) FROM OutwardTransactions
+UNION ALL SELECT 'PurchaseOrders', COUNT(*) FROM PurchaseOrders
+UNION ALL SELECT 'PurchaseOrderDetails', COUNT(*) FROM PurchaseOrderDetails
+UNION ALL SELECT 'StockAdjustments', COUNT(*) FROM StockAdjustments
+UNION ALL SELECT 'Notifications', COUNT(*) FROM Notifications;
+
+PRINT '';
+PRINT 'Test Credentials:';
+PRINT '  Admin:   username: admin     password: Admin@2024!';
+PRINT '  Manager: username: jsmith    password: Manager@2024!';
+PRINT '  Staff:   username: staff     password: Staff@2024!';
+PRINT '  Staff:   username: mwilliams password: Staff@2024!';
+PRINT '';
+PRINT 'Database ready for testing and demonstration.';
+GO
+
+Inventory Login
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Mides Collection - Staff Inventory Management System">
+    <title>Staff Login - Mides Collection Inventory</title>
+    <link rel="stylesheet" href="inventory-styles.css">
+</head>
+<body class="login-page">
+    <!-- Login Container -->
+    <div class="login-container">
+        <div class="login-card">
+            <!-- Logo -->
+            <div class="login-logo">
+                <h1 class="logo-text">MC</h1>
+                <p class="logo-subtitle">Inventory Management</p>
+            </div>
+ 
+            <!-- Login Form -->
+            <form class="login-form" id="login-form">
+                <h2 class="login-heading">Staff Login</h2>
+                
+                <div class="form-group">
+                    <label for="username" class="form-label">Username</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username"
+                        class="form-input" 
+                        placeholder="Enter your username"
+                        required
+                        autocomplete="username"
+                        aria-required="true"
+                    >
+                </div>
+ 
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password"
+                        class="form-input" 
+                        placeholder="Enter your password"
+                        required
+                        autocomplete="current-password"
+                        aria-required="true"
+                    >
+                </div>
+ 
+                <div class="form-group checkbox-group">
+                    <input 
+                        type="checkbox" 
+                        id="remember" 
+                        name="remember"
+                        class="form-checkbox"
+                    >
+                    <label for="remember" class="checkbox-label">Remember me</label>
+                </div>
+ 
+                <button type="submit" class="btn btn-primary btn-block">
+                    Login
+                </button>
+ 
+                <div class="login-footer">
+                    <a href="#" class="link-forgot">Forgot password?</a>
+                </div>
+            </form>
+ 
+            <!-- Demo Credentials -->
+            <div class="demo-info">
+                <p class="demo-title">Demo Credentials:</p>
+                <p class="demo-text"><strong>Admin:</strong> admin / admin123</p>
+                <p class="demo-text"><strong>Staff:</strong> staff / staff123</p>
+            </div>
+        </div>
+    </div>
+ 
+    <!-- Error notification -->
+    <div 
+        id="notification-container" 
+        class="notification-container" 
+        role="status" 
+        aria-live="polite"
+    ></div>
+ 
+    <script src="inventory-login.js"></script>
+</body>
+</html>
+
+Inventory Dashboard
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Mides Collection - Inventory Management Dashboard">
+    <title>Inventory Dashboard - Mides Collection</title>
+    <link rel="stylesheet" href="inventory-styles.css">
+</head>
+<body class="dashboard-page">
+    <!-- Top Navigation -->
+    <header class="dashboard-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <h1 class="logo-text">MC</h1>
+                <span class="logo-subtitle">Inventory System</span>
+            </div>
+            
+            <div class="header-actions">
+                <span class="user-info" id="user-info">Welcome, <strong>Admin</strong></span>
+                <button class="btn btn-logout" id="logout-btn">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard Layout -->
+    <div class="dashboard-layout">
+        <!-- Sidebar Navigation -->
+        <aside class="dashboard-sidebar" role="navigation" aria-label="Dashboard navigation">
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-view="overview">
+                    <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"/>
+                        <rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/>
+                        <rect x="3" y="14" width="7" height="7"/>
+                    </svg>
+                    <span>Overview</span>
+                </button>
+
+                <button class="nav-item" data-view="inward">
+                    <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12l7 7 7-7"/>
+                    </svg>
+                    <span>Inward Stock</span>
+                </button>
+
+                <button class="nav-item" data-view="outward">
+                    <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 19V5M5 12l7-7 7 7"/>
+                    </svg>
+                    <span>Outward Stock</span>
+                </button>
+
+                <button class="nav-item" data-view="inventory">
+                    <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                    </svg>
+                    <span>Current Inventory</span>
+                </button>
+
+                <button class="nav-item" data-view="orders">
+                    <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="9" cy="21" r="1"/>
+                        <circle cx="20" cy="21" r="1"/>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                    </svg>
+                    <span>Order Stock</span>
+                </button>
+
+                <button class="nav-item" data-view="history">
+                    <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                    <span>History</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="dashboard-main">
+            <!-- Overview View -->
+            <section class="view-section active" id="overview-view">
+                <h2 class="view-heading">Dashboard Overview</h2>
+                
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-primary">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <p class="stat-label">Total Items</p>
+                            <p class="stat-value" id="stat-total-items">0</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-success">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 5v14M5 12l7 7 7-7"/>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <p class="stat-label">Inward Today</p>
+                            <p class="stat-value" id="stat-inward">0</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-warning">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 19V5M5 12l7-7 7 7"/>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <p class="stat-label">Outward Today</p>
+                            <p class="stat-value" id="stat-outward">0</p>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-danger">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                                <line x1="12" y1="9" x2="12" y2="13"/>
+                                <line x1="12" y1="17" x2="12.01" y2="17"/>
+                            </svg>
+                        </div>
+                        <div class="stat-content">
+                            <p class="stat-label">Low Stock Items</p>
+                            <p class="stat-value" id="stat-low-stock">0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <h3 class="section-title">Quick Actions</h3>
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" id="quick-add-stock">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            Add Inward Stock
+                        </button>
+                        <button class="btn btn-secondary" id="quick-remove-stock">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            Record Outward
+                        </button>
+                        <button class="btn btn-accent" id="quick-order-stock">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="9" cy="21" r="1"/>
+                                <circle cx="20" cy="21" r="1"/>
+                                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                            </svg>
+                            Order Stock
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="recent-activity">
+                    <h3 class="section-title">Recent Activity</h3>
+                    <div class="activity-list" id="recent-activity-list">
+                        <!-- Activity items will be inserted here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Inward Stock View -->
+            <section class="view-section" id="inward-view">
+                <div class="view-header">
+                    <h2 class="view-heading">Inward Stock</h2>
+                    <button class="btn btn-primary" id="add-inward-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        Add Inward Stock
+                    </button>
+                </div>
+
+                <div class="data-table-container">
+                    <table class="data-table" id="inward-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Supplier</th>
+                                <th>Reference</th>
+                                <th>Added By</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inward-tbody">
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Outward Stock View -->
+            <section class="view-section" id="outward-view">
+                <div class="view-header">
+                    <h2 class="view-heading">Outward Stock</h2>
+                    <button class="btn btn-primary" id="add-outward-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        Record Outward
+                    </button>
+                </div>
+
+                <div class="data-table-container">
+                    <table class="data-table" id="outward-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Reason</th>
+                                <th>Reference</th>
+                                <th>Recorded By</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="outward-tbody">
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Current Inventory View -->
+            <section class="view-section" id="inventory-view">
+                <h2 class="view-heading">Current Inventory</h2>
+                
+                <div class="inventory-grid" id="inventory-grid">
+                    <!-- Inventory cards will be inserted here -->
+                </div>
+            </section>
+
+            <!-- Order Stock View -->
+            <section class="view-section" id="orders-view">
+                <div class="view-header">
+                    <h2 class="view-heading">Order Stock</h2>
+                    <button class="btn btn-primary" id="create-order-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        Create Order
+                    </button>
+                </div>
+
+                <div class="data-table-container">
+                    <table class="data-table" id="orders-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Supplier</th>
+                                <th>Status</th>
+                                <th>Created By</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-tbody">
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- History View -->
+            <section class="view-section" id="history-view">
+                <h2 class="view-heading">Transaction History</h2>
+                
+                <div class="filter-bar">
+                    <select id="filter-type" class="form-select">
+                        <option value="all">All Transactions</option>
+                        <option value="inward">Inward Only</option>
+                        <option value="outward">Outward Only</option>
+                        <option value="orders">Orders Only</option>
+                    </select>
+                    
+                    <input type="date" id="filter-date" class="form-input">
+                    
+                    <button class="btn btn-secondary" id="apply-filter">Apply Filter</button>
+                    <button class="btn btn-outline" id="export-data">Export to CSV</button>
+                </div>
+
+                <div class="data-table-container">
+                    <table class="data-table" id="history-table">
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Type</th>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>User</th>
+                                <th>Reference</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-tbody">
+                            <!-- Data will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for Adding Inward Stock -->
+    <div class="modal" id="inward-modal" role="dialog" aria-labelledby="inward-modal-title" aria-hidden="true">
+        <div class="modal-overlay" data-close-modal></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="inward-modal-title" class="modal-title">Add Inward Stock</h3>
+                <button class="modal-close" data-close-modal aria-label="Close modal">×</button>
+            </div>
+            <form class="modal-form" id="inward-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="inward-product" class="form-label">Product *</label>
+                        <select id="inward-product" class="form-select" required>
+                            <option value="">Select Product</option>
+                            <option value="ariel">Ariel</option>
+                            <option value="body-wave">Body Wave</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="lexy">Lexy</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="inward-quantity" class="form-label">Quantity *</label>
+                        <input type="number" id="inward-quantity" class="form-input" min="1" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="inward-supplier" class="form-label">Supplier *</label>
+                        <input type="text" id="inward-supplier" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="inward-reference" class="form-label">Reference Number</label>
+                        <input type="text" id="inward-reference" class="form-input">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="inward-notes" class="form-label">Notes</label>
+                    <textarea id="inward-notes" class="form-textarea" rows="3"></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" data-close-modal>Cancel</button>
+                    <button type="submit" class="btn btn-primary">Add Stock</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for Adding Outward Stock -->
+    <div class="modal" id="outward-modal" role="dialog" aria-labelledby="outward-modal-title" aria-hidden="true">
+        <div class="modal-overlay" data-close-modal></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="outward-modal-title" class="modal-title">Record Outward Stock</h3>
+                <button class="modal-close" data-close-modal aria-label="Close modal">×</button>
+            </div>
+            <form class="modal-form" id="outward-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="outward-product" class="form-label">Product *</label>
+                        <select id="outward-product" class="form-select" required>
+                            <option value="">Select Product</option>
+                            <option value="ariel">Ariel</option>
+                            <option value="body-wave">Body Wave</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="lexy">Lexy</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="outward-quantity" class="form-label">Quantity *</label>
+                        <input type="number" id="outward-quantity" class="form-input" min="1" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="outward-reason" class="form-label">Reason *</label>
+                        <select id="outward-reason" class="form-select" required>
+                            <option value="">Select Reason</option>
+                            <option value="sale">Sale</option>
+                            <option value="return">Return to Supplier</option>
+                            <option value="damage">Damaged/Defective</option>
+                            <option value="sample">Sample</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="outward-reference" class="form-label">Reference Number</label>
+                        <input type="text" id="outward-reference" class="form-input">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="outward-notes" class="form-label">Notes</label>
+                    <textarea id="outward-notes" class="form-textarea" rows="3"></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" data-close-modal>Cancel</button>
+                    <button type="submit" class="btn btn-primary">Record Outward</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for Creating Order -->
+    <div class="modal" id="order-modal" role="dialog" aria-labelledby="order-modal-title" aria-hidden="true">
+        <div class="modal-overlay" data-close-modal></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="order-modal-title" class="modal-title">Create Stock Order</h3>
+                <button class="modal-close" data-close-modal aria-label="Close modal">×</button>
+            </div>
+            <form class="modal-form" id="order-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="order-product" class="form-label">Product *</label>
+                        <select id="order-product" class="form-select" required>
+                            <option value="">Select Product</option>
+                            <option value="ariel">Ariel</option>
+                            <option value="body-wave">Body Wave</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="lexy">Lexy</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="order-quantity" class="form-label">Quantity *</label>
+                        <input type="number" id="order-quantity" class="form-input" min="1" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="order-supplier" class="form-label">Supplier *</label>
+                    <select id="order-supplier" class="form-select" required>
+                        <option value="">Select Supplier</option>
+                        <option value="supplier-a">Supplier A - Premium Hair</option>
+                        <option value="supplier-b">Supplier B - Hair World</option>
+                        <option value="supplier-c">Supplier C - Extensions Ltd</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="order-notes" class="form-label">Notes</label>
+                    <textarea id="order-notes" class="form-textarea" rows="3"></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline" data-close-modal>Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Order</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div 
+        id="notification-container" 
+        class="notification-container" 
+        role="status" 
+        aria-live="polite"
+    ></div>
+
+    <script src="inventory-dashboard.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+14. Bibliography
+1. Project Management
+Software Project Management (5th Edition)
+•	Authors: Bob Hughes & Mike Cotterell
+•	Publisher: McGraw-Hill Higher Education
+•	ISBN: 978-0-07712-279-9
+•	Year: 2009
+2. Professional Issues & Ethics
+Professional Issues in Information Technology (2nd Edition)
+•	Author: M.F. Bott
+•	Publisher: BCS (British Computer Society)
+•	ISBN: 978-1780171807
+•	Year: 2014
+3. Database Systems (For Your Project)
+Database Systems: Practical Approach to Design, Implementation, and Management (6th Edition)
+•	Authors: Thomas M. Connolly & Carolyn Begg
+•	Publisher: Pearson Education
+•	ISBN: 978-1292061184
+•	Year: 2015
+4. Systems Analysis & Design
+Modern Database Management (11th Edition)
+•	Authors: Jeffrey A. Hoffer & Fred R. McFadden
+•	Publisher: Benjamin Cummins
+•	ISBN: 978-0273779285
+•	Year: 2012
+
+5. Cryptography & Network Security Principles and Practice (7th Edition)
+•	Author: William Stallings
+•	Publisher: Pearson
+•	ISBN: 978-1292158594
+•	Year: 2017
+
+6. Software Testing Techniques
+•	Author: Boris Beizer
+7. Full-Stack JavaScript Development
+Full-Stack React, TypeScript, and Node
+•	Author: David Choi
+•	Publisher: Packt Publishing
+•	ISBN: 978-1800206885
+•	Year: 2020
+8. Web Development: Full Stack (1st Edition) 
+•	Author: David Coller
+•	Publisher: Cengage Learning
+•	ISBN: 978-0-357-67385-0
+•	Year: 2023
+9. Node.js Design Patterns (3rd Edition) 
+•	Authors: Mario Casciaro, Luciano Mammino
+•	Publisher: Packt Publishing
+•	Year: 2020
+10. Node.js: The Comprehensive Guide
+•	Publisher: Rheinwerk Computing
+11. E-Commerce Application Development
+•	Author: Patrick McKeown
+•	Publisher: Wiley
+•	ISBN: 978-0-471-14526-9
+•	Year: 2020
+12. Database Systems: Practical Approach to Design, Implementation, and Management (6th Edition)
+•	Authors: Connolly & Begg
+13. User Experience & Web Usability
+Don't Make Me Think (3rd Edition) 
+•	Author: Steve Krug
+•	Publisher: New Riders
+•	Year: 2014
+14.Title Design Patterns: Elements of Reusable Object-Oriented Software
+•	Addison-Wesley Professional Computing Series
+•	AuthorsﾠErich Gamma, Richard Helm, Ralph Johnson, John Vlissides
+•	PublisherﾠPearson Education, 1994
+•	ISBNﾠ0321700694, 9780321700698
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	Date	Must-Have Features Delivered	Nice-to-Have Features (Future Work)
+Requirement Analysis	Jul 2025	Confirm customer/staff needs: product catalogue, direct ordering, instant confirmation, order-to-wholesaler link, stock updates, secure login, customer data protection	Identify interest in reports, marketing tools, payment integration
+System Design	Sep 2025	UML diagrams for ordering workflows, stock updates, and secure login; wireframes for catalogue, checkout, staff dashboard	Draft optional designs for reporting dashboard or SMS/email alerts
+Frontend & Backend Setup	Oct 2025	Build database (Customers, Orders, Products); implement login system; set up backend API routes (order, stock, confirmation)	N/A
+Core Feature Implementation	Nov 2025	Customer catalogue + checkout; instant confirmation; staff dashboard to view orders; stock management updates	N/A
+Testing & Bug Fixing	Dec 2025	Functional testing of ordering, stock updates, confirmations; database verification (before/after orders)	N/A
+User Acceptance Testing (UAT)	Jan 2026	Business owner tests must-have features (placing orders, updating stock, order-to-wholesaler notifications)	Collect feedback on potential value of reporting/marketing features
+Final Documentation	Jan 2026	Document working prototype (must-haves), testing evidence, and recommendations for future upgrade	Outline feasibility of nice-to-have features for later phases
+
+
+
+
+
+
+
+
+
+
+
+
+
+
