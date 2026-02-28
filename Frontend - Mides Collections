@@ -1,0 +1,175 @@
+USE MidesInventory;
+GO
+
+SET NOCOUNT ON;
+GO
+
+--------------------------------------------------
+-- USERS (via sp_CreateUser – hashed passwords)
+--------------------------------------------------
+PRINT 'Creating users with secure password hashing...';
+
+EXEC sp_CreateUser 'admin',     'Admin@2024!',   'System', 'Administrator', 'admin@midescollection.com',    'Admin';
+EXEC sp_CreateUser 'jsmith',    'Manager@2024!', 'John',   'Smith',         'john.smith@midescollection.com','Manager';
+EXEC sp_CreateUser 'staff',     'Staff@2024!',   'Jane',   'Doe',           'jane.doe@midescollection.com', 'Staff';
+EXEC sp_CreateUser 'mwilliams', 'Staff@2024!',   'Michael','Williams',      'michael.williams@midescollection.com','Staff';
+GO
+
+--------------------------------------------------
+-- SUPPLIERS
+--------------------------------------------------
+INSERT INTO Suppliers (
+    SupplierCode, SupplierName, ContactName, Email, Phone,
+    Address, City, PostalCode, Country,
+    PaymentTerms, Rating, CreatedBy
+)
+VALUES
+    ('SUP001', 'Premium Hair Ltd',         'Sarah Johnson', 'sarah@premiumhair.com',          '+44 20 7123 4567',
+     '123 Hair Street',    'London',     'EC1A 1BB', 'United Kingdom', 'Net 30', 4.5, 1),
+    ('SUP002', 'Hair World Suppliers',     'David Chen',    'david@hairworld.com',            '+44 161 234 5678',
+     '456 Extension Ave',  'Manchester', 'M1 1AA',  'United Kingdom', 'Net 45', 4.0, 1),
+    ('SUP003', 'Extensions International', 'Maria Garcia',  'maria@extensions-int.com',       '+44 121 345 6789',
+     '789 Beauty Road',    'Birmingham', 'B1 1BB',  'United Kingdom', 'Net 30', 4.8, 1),
+    ('SUP004', 'Quality Wigs Co',          'James Brown',   'james@qualitywigs.co.uk',        '+44 113 456 7890',
+     '321 Wig Lane',       'Leeds',      'LS1 1AA', 'United Kingdom', 'COD',   3.5, 1);
+
+--------------------------------------------------
+-- PRODUCTS
+--------------------------------------------------
+INSERT INTO Products (
+    ProductCode, ProductName, Description, Category,
+    UnitPrice, CostPrice, MinimumStockLevel, ReorderLevel, CreatedBy
+)
+VALUES
+    ('ARIEL-001',    'Ariel',            'Premium auburn wavy wig - high quality synthetic fiber',      'Wigs',       250.00, 150.00, 10, 20, 1),
+    ('BODY-001',     'Body Wave',       'Body wave hair extension bundles - 100% human hair',          'Extensions',  40.00,  25.00, 20, 40, 1),
+    ('MAINT-001',    'Maintenance Kit', 'Hair maintenance kit - shampoo, conditioner, styling',        'Maintenance', 20.00,  12.00, 15, 30, 1),
+    ('LEXY-001',     'Lexy',            'Brown wavy wig - natural looking premium quality',            'Wigs',       220.00, 130.00, 10, 20, 1),
+    ('CURLY-001',    'Curly Delight',   'Tight curl pattern hair extensions - premium grade',          'Extensions',  45.00,  28.00, 15, 30, 1),
+    ('STRAIGHT-001', 'Silky Straight',  'Bone straight hair extensions - ultra smooth',                 'Extensions',  38.00,  23.00, 18, 35, 1);
+
+--------------------------------------------------
+-- INVENTORY
+--------------------------------------------------
+INSERT INTO Inventory (ProductID, QuantityInStock, QuantityReserved, Location, LastUpdatedBy)
+VALUES
+    (1, 45,  2, 'Main Warehouse', 1),
+    (2, 120, 5, 'Main Warehouse', 1),
+    (3, 8,   0, 'Main Warehouse', 1), -- low stock
+    (4, 32,  1, 'Main Warehouse', 1),
+    (5, 28,  0, 'Main Warehouse', 1),
+    (6, 55,  3, 'Main Warehouse', 1);
+
+--------------------------------------------------
+-- INWARD TRANSACTIONS (last 30 days)
+--------------------------------------------------
+INSERT INTO InwardTransactions (
+    TransactionNumber, ProductID, SupplierID,
+    Quantity, UnitCost, ReferenceNumber,
+    TransactionDate, ReceivedBy, Status
+)
+VALUES
+    ('INW-20260201-001', 1, 1, 20, 150.00, 'PO-001', DATEADD(DAY, -15, GETDATE()), 1, 'Approved'),
+    ('INW-20260204-002', 2, 2, 50,  25.00, 'PO-002', DATEADD(DAY, -12, GETDATE()), 3, 'Approved'),
+    ('INW-20260208-003', 4, 3, 15, 130.00, 'PO-003', DATEADD(DAY,  -8, GETDATE()), 3, 'Approved'),
+    ('INW-20260211-004', 5, 1, 30,  28.00, 'PO-004', DATEADD(DAY,  -5, GETDATE()), 1, 'Approved'),
+    ('INW-20260213-005', 2, 2, 30,  25.00, 'PO-005', DATEADD(DAY,  -3, GETDATE()), 3, 'Approved'),
+    ('INW-20260215-006', 6, 3, 25,  23.00, 'PO-006', DATEADD(DAY,  -1, GETDATE()), 1, 'Approved');
+
+--------------------------------------------------
+-- OUTWARD TRANSACTIONS (last 30 days)
+--------------------------------------------------
+INSERT INTO OutwardTransactions (
+    TransactionNumber, ProductID,
+    Quantity, UnitPrice, Reason,
+    CustomerName, ReferenceNumber,
+    TransactionDate, DispatchedBy, Status
+)
+VALUES
+    ('OUT-20260206-001', 1,  5, 250.00, 'Sale',   'Sarah Williams',   'ORD-1001',   DATEADD(DAY, -10, GETDATE()), 3, 'Approved'),
+    ('OUT-20260207-002', 2, 15,  40.00, 'Sale',   'Emma Brown',       'ORD-1002',   DATEADD(DAY,  -9, GETDATE()), 3, 'Approved'),
+    ('OUT-20260209-003', 3,  7,  20.00, 'Sale',   'Olivia Jones',     'ORD-1003',   DATEADD(DAY,  -7, GETDATE()), 4, 'Approved'),
+    ('OUT-20260210-004', 4,  3, 220.00, 'Sale',   'Sophia Davis',     'ORD-1004',   DATEADD(DAY,  -6, GETDATE()), 3, 'Approved'),
+    ('OUT-20260212-005', 2, 10,  40.00, 'Sale',   'Isabella Miller',  'ORD-1005',   DATEADD(DAY,  -4, GETDATE()), 4, 'Approved'),
+    ('OUT-20260213-006', 1,  2, 250.00, 'Sample', 'Marketing Dept',   'SAMPLE-001', DATEADD(DAY,  -3, GETDATE()), 1, 'Approved'),
+    ('OUT-20260214-007', 6,  5,  38.00, 'Sale',   'Mia Wilson',       'ORD-1006',   DATEADD(DAY,  -2, GETDATE()), 3, 'Approved'),
+    ('OUT-20260215-008', 2,  8,  40.00, 'Sale',   'Charlotte Moore',  'ORD-1007',   DATEADD(DAY,  -1, GETDATE()), 4, 'Approved');
+
+--------------------------------------------------
+-- PURCHASE ORDERS
+--------------------------------------------------
+INSERT INTO PurchaseOrders (
+    OrderNumber, SupplierID,
+    OrderDate, ExpectedDeliveryDate,
+    Status, TotalAmount,
+    CreatedBy, ApprovedBy, ApprovedDate
+)
+VALUES
+    ('PO-20260126-001', 1, DATEADD(DAY, -20, GETDATE()), DATEADD(DAY,  -5, GETDATE()), 'Received', 3000.00, 1, 2, DATEADD(DAY, -19, GETDATE())),
+    ('PO-20260131-002', 2, DATEADD(DAY, -15, GETDATE()), DATEADD(DAY,  -3, GETDATE()), 'Received', 1250.00, 3, 2, DATEADD(DAY, -14, GETDATE())),
+    ('PO-20260205-003', 3, DATEADD(DAY, -10, GETDATE()), DATEADD(DAY,   5, GETDATE()), 'Ordered',  1950.00, 1, 2, DATEADD(DAY,  -9, GETDATE())),
+    ('PO-20260210-004', 1, DATEADD(DAY,  -5, GETDATE()), DATEADD(DAY,  10, GETDATE()), 'Ordered',   840.00, 3, 2, DATEADD(DAY,  -4, GETDATE())),
+    ('PO-20260213-005', 2, DATEADD(DAY,  -2, GETDATE()), DATEADD(DAY,  13, GETDATE()), 'Pending',   750.00, 1, NULL, NULL);
+
+INSERT INTO PurchaseOrderDetails (OrderID, ProductID, Quantity, UnitPrice, QuantityReceived)
+VALUES
+    (1, 1, 20, 150.00, 20),
+    (2, 2, 50,  25.00, 50),
+    (3, 4, 15, 130.00,  0),
+    (4, 5, 30,  28.00,  0),
+    (5, 2, 30,  25.00,  0);
+
+--------------------------------------------------
+-- STOCK ADJUSTMENTS
+--------------------------------------------------
+INSERT INTO StockAdjustments (
+    AdjustmentNumber, ProductID, AdjustmentType,
+    QuantityBefore, QuantityChange, QuantityAfter,
+    Reason, AdjustmentDate, AdjustedBy, ApprovedBy
+)
+VALUES
+    ('ADJ-20260209-001', 3, 'Subtract', 10, -2,  8, 'Damaged during storage', DATEADD(DAY, -7, GETDATE()), 3, 2),
+    ('ADJ-20260212-002', 5, 'Add',      27,  1, 28, 'Found missing inventory', DATEADD(DAY, -4, GETDATE()), 4, 2);
+
+--------------------------------------------------
+-- NOTIFICATIONS
+--------------------------------------------------
+INSERT INTO Notifications (
+    UserID, NotificationType, Title, Message,
+    Priority, RelatedEntityType, RelatedEntityID
+)
+VALUES
+    (NULL, 'LowStock',    'Low Stock Alert', 'Maintenance Kit below minimum stock (8 units)', 'High',  'Product',        3),
+    (1,    'OrderPlaced', 'New Order',       'Purchase Order PO-20260213-005 has been created',       'Normal','PurchaseOrder', 5),
+    (2,    'System',      'System Maintenance','System maintenance scheduled for this weekend',        'Low',   NULL,           NULL);
+GO
+
+--------------------------------------------------
+-- SUMMARY
+--------------------------------------------------
+PRINT '';
+PRINT '========================================';
+PRINT 'DATA INSERTION COMPLETE';
+PRINT '========================================';
+PRINT '';
+
+SELECT 'Users'                  AS TableName, COUNT(*) AS RecordCount FROM Users
+UNION ALL SELECT 'Suppliers',          COUNT(*) FROM Suppliers
+UNION ALL SELECT 'Products',           COUNT(*) FROM Products
+UNION ALL SELECT 'Inventory',          COUNT(*) FROM Inventory
+UNION ALL SELECT 'InwardTransactions', COUNT(*) FROM InwardTransactions
+UNION ALL SELECT 'OutwardTransactions',COUNT(*) FROM OutwardTransactions
+UNION ALL SELECT 'PurchaseOrders',     COUNT(*) FROM PurchaseOrders
+UNION ALL SELECT 'PurchaseOrderDetails',COUNT(*) FROM PurchaseOrderDetails
+UNION ALL SELECT 'StockAdjustments',   COUNT(*) FROM StockAdjustments
+UNION ALL SELECT 'Notifications',      COUNT(*) FROM Notifications;
+
+PRINT '';
+PRINT 'Test Credentials:';
+PRINT '  Admin:   username: admin     password: Admin@2024!';
+PRINT '  Manager: username: jsmith    password: Manager@2024!';
+PRINT '  Staff:   username: staff     password: Staff@2024!';
+PRINT '  Staff:   username: mwilliams password: Staff@2024!';
+PRINT '';
+PRINT 'Database ready for testing and demonstration.';
+GO
